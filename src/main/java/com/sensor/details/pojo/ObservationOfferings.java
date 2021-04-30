@@ -11,6 +11,8 @@ public class ObservationOfferings
 	private String latitude;
 	private String longitude;
 	private String procedure;
+	private String beginTime;
+	private String endTime;
 	private List<String> observedProperty;
 	
 	public ObservationOfferings()
@@ -94,13 +96,30 @@ public class ObservationOfferings
 	public void setObservedProperty(List<String> observedProperty) {
 		this.observedProperty = observedProperty;
 	}
+	
+
+	public String getBeginTime() {
+		return beginTime;
+	}
+
+	public void setBeginTime(String beginTime) {
+		this.beginTime = beginTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
 
 	@Override
 	public String toString() {
 		return "ObservationOfferings [sensorId=" + sensorId + ", description=" + description + ", name=" + name
 				+ ", srsName=" + srsName + ", latitude=" + latitude + ", longitude=" + longitude + ", procedure="
-				+ procedure + ", observedProperty=" + observedProperty + "]";
+				+ procedure + ", beginTime=" + beginTime + ", endTime=" + endTime + ", observedProperty="
+				+ observedProperty + "]";
 	}
-	
 	
 }

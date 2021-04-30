@@ -60,7 +60,7 @@ $("#request-btn").click(function(){
              			//console.log(capD.latitude+" "+capD.longitude
             	 			if(capD.latitude!=null && capD.longitude != null){
             	 				var name = capD.description;
-            	 				if(name==null)
+            	 				if(name==null || name == "")
             	 					name = capD.name;
             	 			var latLong = [name, capD.latitude, capD.longitude];
             	 			latitudeLongArray[capI] = latLong;
@@ -99,12 +99,7 @@ $("#request-btn").click(function(){
  	         },
  	         success: function (data) {
  	             var r = document.getElementById('results');
- 	             if(data.sensorInfo.sensorDesc.errorCode=="001")
- 	             {
-					alert(data.sensorInfo.sensorDesc.errorMessage);
-	
-}
-else{
+ 	             
  	             r.value = data.sensorInfo.response;
  	            var sensorDesc = [data.sensorInfo.sensorDesc.name, 
  	            	data.sensorInfo.sensorDesc.description, 
@@ -113,13 +108,10 @@ else{
  	            	data.sensorInfo.sensorDesc.country,
  	            	data.sensorInfo.sensorDesc.address,
  	            	data.sensorInfo.sensorDesc.latitude,
- 	            	data.sensorInfo.sensorDesc.longitude
- 	            	];
- 	            	
+ 	            	data.sensorInfo.sensorDesc.longitude];
  	            
  	           mymap.remove();
  	           map_desc(sensorDesc);
- 	           }
  	             
  	         /*   $.each(capabilites,function(capI,capD)
  	                     {
@@ -134,11 +126,30 @@ else{
  	}
 });
 
+$("#stations").on('change',function(){
+	$("#timeForm").show();
+	
+	$.each(offerings,function(capI,capD)
+            {
+   	 			if(capD.name == $("#stations").val())
+   	 				{
+   	 					$("#beginTime").text(capD.beginTime);
+   	 					$("#endTime").text(capD.endTime);
+   	 					$("#timePosition").val(capD.beginTime);
+   	 				}
+   	 			
+   	 			//arrayOfLatLong.push(latLong);
+    					//storeCoordinate(capD.latitude, capD.longitude, arrayOfLatLong);
+            });
+	
+	
+});
 
 $("#station-btn").click(function(){
 	console.log("station btn");
 	
 });
+
 
 
 /*$('#requests').on('change', function(){
@@ -817,7 +828,38 @@ function wms_populateForm() {
 $(document).ready(function(){
     wms_init();
     var latlong;
+   
+    
+   /* $('#timePosition').datetimepicker({  
+        format: 'DD/MM/YYYY HH:mm'
+    });
+    
+    $("#timePosLab").hide();
+    $("#timePosition").hide();*/
+    $("#timeForm").hide();
+    $("#availProp").hide();
     map_new(["19.076090", "72.877426"]);
+});
+
+$("#requests").on('change', function(){
+	
+	if($("#requests").val() == "gc"){
+		$("#availProp").hide();
+
+	   // $("#timePosition").show();
+	}
+	
+	if($("#requests").val() == "go_airtemperature_1"){
+		$("#availProp").hide();
+
+	   // $("#timePosition").show();
+	}
+	
+
+	if( $("#requests").val() == "ds"){
+		$("#availProp").show();
+	}
+	 
 });
 
 $('#srs').on('change', function(){

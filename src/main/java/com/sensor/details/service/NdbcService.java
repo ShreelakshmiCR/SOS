@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
-import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -120,6 +119,39 @@ public class NdbcService {
 		             		capInfo.setLatitude(latLongArr[0]);
 		             		capInfo.setLongitude(latLongArr[1].replace("\n", ""));
 		             	  }
+		             	 if(cardelems.getNodeName().equals("sos:time"))
+		             	  {
+		             		NodeList timeChildNodesList = cardelems.getChildNodes();
+		             		for(int chI =0 ;chI<timeChildNodesList.getLength();chI++)
+		             		{
+		             			Node timeChildNode = timeChildNodesList.item(chI);
+		             			//System.out.println(timeChildNode.getNodeName());
+		             			if(timeChildNode.getNodeName().equals("gml:TimePeriod"))
+		             			{
+		             				NodeList timeInnerChildNodesList = timeChildNode.getChildNodes();
+				             		for(int chJ =0 ;chJ<timeInnerChildNodesList.getLength();chJ++)
+				             		{
+				             			Node timeInnerChildNode = timeInnerChildNodesList.item(chJ);
+				             			//System.out.println(timeInnerChildNode.getNodeName());
+				             			if(timeInnerChildNode.getNodeName().equals("gml:beginPosition")) {
+				             				//System.out.println("Begin Time:"+timeInnerChildNode.getTextContent());
+				             				observationOfferings.setBeginTime(timeInnerChildNode.getTextContent());
+				             			}
+				             			if(timeInnerChildNode.getNodeName().equals("gml:endPosition")) {
+				             				//System.out.println("End Time:"+timeInnerChildNode.getTextContent());
+				             				observationOfferings.setEndTime(timeInnerChildNode.getTextContent());
+				             			}
+				             		}
+		             			}
+		             		}
+		             		//String latLong = cardelems.getTextContent().trim();
+		             		//String[] latLongArr = latLong.split(" ");
+		             		//System.out.println("begin time:"+Arrays.toString(latLongArr));
+		             		//observationOfferings.setLatitude(latLongArr[0]);
+		             		//observationOfferings.setLongitude(latLongArr[1].replace("\n", ""));
+		             		//capInfo.setLatitude(latLongArr[0]);
+		             		//capInfo.setLongitude(latLongArr[1].replace("\n", ""));
+		             	  }
 		             	 if(cardelems.getNodeName().equals("sos:procedure"))
 		             	  {
 		             		observationOfferings.setProcedure(cardelems.getAttributes().getNamedItem("xlink:href").getTextContent());
@@ -178,38 +210,26 @@ public class NdbcService {
 
 					.asString();
 
-			System.out.println(response.getBody());
 			Document document = XmlUtils.getDocument(response.getBody());
 			XPath xpath = XPathFactory.newInstance().newXPath();
-			String errorMessage=xpath.evaluate("//ExceptionReport//Exception//ExceptionText", document);
+			
 			SensorDescription sensorDesc = new SensorDescription();
-			if(errorMessage==null || errorMessage.isEmpty())
-			{
-				sensorDesc.setErrorCode("001");
-				sensorDesc.setErrorMessage(errorMessage);
-				
-			}
-			else 
-			{
-				sensorDesc.setName(xpath.evaluate("//SensorML//member//System//name", document));
-				sensorDesc.setDescription(xpath.evaluate("//SensorML//member//System//description", document));
-				sensorDesc.setPropertyName(xpath.evaluate("//SensorML//member//System//identification//IdentifierList//identifier[@name='longName']//Term//value", document));
-				sensorDesc.setClassifierPlatform(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='platformType']//Term//value", document));
-				sensorDesc.setClassifierPublisher(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='publisher']//Term//value", document));
-				sensorDesc.setOrganizationName(xpath.evaluate("//SensorML//member//System//contact[contains(@xlink:role,'operator')]//ResponsibleParty//organizationName", document));
-				sensorDesc.setCountry(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//country", document));
-				sensorDesc.setAddress(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//deliveryPoint", document)
-						+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//city", document)
-						+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//administrativeArea", document)
-						+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//postalCode", document)
-						+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//electronicMailAddress", document));
-				
-				sensorDesc.setLatitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[0]);
-				sensorDesc.setLongitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[1].replace("\n", ""));;
-				
-			}
 			
+			sensorDesc.setName(xpath.evaluate("//SensorML//member//System//name", document));
+			sensorDesc.setDescription(xpath.evaluate("//SensorML//member//System//description", document));
+			sensorDesc.setPropertyName(xpath.evaluate("//SensorML//member//System//identification//IdentifierList//identifier[@name='longName']//Term//value", document));
+			sensorDesc.setClassifierPlatform(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='platformType']//Term//value", document));
+			sensorDesc.setClassifierPublisher(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='publisher']//Term//value", document));
+			sensorDesc.setOrganizationName(xpath.evaluate("//SensorML//member//System//contact[contains(@xlink:role,'operator')]//ResponsibleParty//organizationName", document));
+			sensorDesc.setCountry(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//country", document));
+			sensorDesc.setAddress(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//deliveryPoint", document)
+					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//city", document)
+					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//administrativeArea", document)
+					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//postalCode", document)
+					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//electronicMailAddress", document));
 			
+			sensorDesc.setLatitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[0]);
+			sensorDesc.setLongitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[1].replace("\n", ""));;
 			
 			sensorInfo.put("response", response.getBody());
 			sensorInfo.put("sensorDesc",sensorDesc);

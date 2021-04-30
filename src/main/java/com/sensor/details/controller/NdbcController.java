@@ -69,12 +69,11 @@ public class NdbcController {
 		System.out.println("ID:"+stationId);
 		JSONObject sensorInfo = new JSONObject();
 		sensorInfo.put("requestId", UUID.randomUUID().toString());
-		try 
+		try
 		{
 			sensorInfo.put("code", "000");
 			sensorInfo.put("message", "Success");
 			sensorInfo.put("sensorInfo", ndbcService.getObservationAirTemp(stationId));
-			
 		}
 		catch(Exception e)
 		{
@@ -83,29 +82,7 @@ public class NdbcController {
 			sensorInfo.put("status", false);
 			sensorInfo.put("message", "Request Failed");
 		}
-		
 		return sensorInfo;
+	
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }
