@@ -4,6 +4,8 @@ var capabilites;
 var offerings;
 var features = [];
 var vector;
+var arrayOfLatLong= [];
+var mymap;
 $("#provider").click(function(){
   
 	var div_data="<option value=\"gc\">GetCapabilities</option><option value=\"ds\">DescribeSensor</option><option value=\"go_airtemperature_1\">GetObservation Air Temperature</option><option value=\"go_pressure_1\">GetObservation Atmospheric Pressure</option>";
@@ -11,8 +13,12 @@ $("#provider").click(function(){
 	
 });
 
+function storeCoordinate(xVal, yVal, array) {
+    array.push({xVal, yVal});
+}
+
 $("#request-btn").click(function(){
-	insertXMLRequest($("#requests").val());this.blur();
+	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());this.blur();
      var request_url = this.value;
      
      if($("#requests").val()=="gc"){
@@ -47,9 +53,26 @@ $("#request-btn").click(function(){
              
              offerings= data.capabilities.observationOfferings;
              $('#map').children().remove();
-             map_init(offerings);
+             var latitudeLongArray = new Array(offerings.length);
+
+             $.each(offerings,function(capI,capD)
+                     {
+             			//console.log(capD.latitude+" "+capD.longitude
+            	 			if(capD.latitude!=null && capD.longitude != null){
+            	 				var name = capD.description;
+            	 				if(name==null)
+            	 					name = capD.name;
+            	 			var latLong = [name, capD.latitude, capD.longitude];
+            	 			latitudeLongArray[capI] = latLong;
+            	 			}
+            	 			//arrayOfLatLong.push(latLong);
+             					//storeCoordinate(capD.latitude, capD.longitude, arrayOfLatLong);
+                     });
+             mymap.remove();
+             map_new(latitudeLongArray);
+            // map_init(offerings);
              
-             vector.addFeatures(features);
+            // vector.addFeatures(features);
              
              },
              complete: function(){
@@ -76,13 +99,32 @@ $("#request-btn").click(function(){
  	         },
  	         success: function (data) {
  	             var r = document.getElementById('results');
- 	             
+ 	             if(data.sensorInfo.sensorDesc.errorCode=="001")
+ 	             {
+					alert(data.sensorInfo.sensorDesc.errorMessage);
+	
+}
+else{
  	             r.value = data.sensorInfo.response;
+ 	            var sensorDesc = [data.sensorInfo.sensorDesc.name, 
+ 	            	data.sensorInfo.sensorDesc.description, 
+ 	            	data.sensorInfo.sensorDesc.propertyName,
+ 	            	data.sensorInfo.sensorDesc.classifierPublisher,
+ 	            	data.sensorInfo.sensorDesc.country,
+ 	            	data.sensorInfo.sensorDesc.address,
+ 	            	data.sensorInfo.sensorDesc.latitude,
+ 	            	data.sensorInfo.sensorDesc.longitude
+ 	            	];
+ 	            	
+ 	            
+ 	           mymap.remove();
+ 	           map_desc(sensorDesc);
+ 	           }
  	             
- 	            $.each(capabilites,function(capI,capD)
+ 	         /*   $.each(capabilites,function(capI,capD)
  	                     {
  	             			console.log("hi");
- 	                     });
+ 	                     });*/
  	             
  	             },
  	             complete: function(){
@@ -164,6 +206,44 @@ function myMap() {
 
 var map;
 
+function map_new(latlong) {
+	
+	
+	mymap = L.map('map').setView(["19.076090", "72.877426"], 3);
+	mapLink =
+	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+	L.tileLayer(
+	  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; ' + mapLink + ' Contributors',
+	    maxZoom: 18,
+	  }).addTo(mymap);
+
+	for (var i = 0; i < latlong.length; i++) {
+	  marker = new L.marker([latlong[i][1], latlong[i][2]],{ iconOptions: { color: "rgb(0,0,100)" }})
+	    .bindPopup(latlong[i][0])
+	    .addTo(mymap);
+	}
+
+}
+
+function map_desc(latlong) {
+	
+	
+	mymap = L.map('map').setView([latlong[6], latlong[7]], 3);
+	mapLink =
+	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+	L.tileLayer(
+	  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; ' + mapLink + ' Contributors',
+	    maxZoom: 18,
+	  }).addTo(mymap);
+	
+	  marker = new L.marker([latlong[6], latlong[7]])
+	    .bindPopup(latlong[0]+" "+latlong[1]+" "+latlong[2]+" "+latlong[3]+" "+latlong[4]+" "+latlong[5])
+	    .addTo(mymap);
+	
+
+}
 function map_init(latlong) {
     map = new OpenLayers.Map("map");
 
@@ -178,6 +258,7 @@ function map_init(latlong) {
      */   
     
     if(latlong == null){
+    	console.log("Inside latlong null");
     for(var i = 0; i < i; i++) {
         features[i] = new OpenLayers.Feature.Vector(
                 toMercator(new OpenLayers.Geometry.Point(
@@ -199,7 +280,7 @@ function map_init(latlong) {
     	{
     	  $.each(latlong,function(capI,capD)
                   {
-          			//console.log(capD.latitude);
+          			console.log(capD.latitude+" "+capD.longitude+"\n");
          	 
          	 features[capI] = new OpenLayers.Feature.Vector(
                       toMercator(new OpenLayers.Geometry.Point(
@@ -209,11 +290,11 @@ function map_init(latlong) {
                          // foo : 100 * Math.random() | 0
                       }, {
                           fillColor : '#008040',
-                          fillOpacity : 0.8,                    
+                          fillOpacity : 0.1,                    
                           strokeColor : "#ee9900",
                           strokeOpacity : 1,
                           strokeWidth : 1,
-                          pointRadius : 8
+                          pointRadius : 2
                       });
                   });
     	}
@@ -277,7 +358,7 @@ function wms_init(){
       });
 }
 
-function insertXMLRequest(xmltype) {
+function insertXMLRequest(xmltype, stationId, propertyValue) {
 	var pd = document.getElementById('POSTDATA');
 	if (pd) {
 		switch(xmltype) {
@@ -304,7 +385,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n\
 xmlns:sos="http://www.opengis.net/sos/1.0"\n\
 xsi:schemaLocation="http://www.opengis.net/sos/1.0 http://schemas.opengis.net/sos/1.0.0/sosAll.xsd"\n\
 service="SOS" outputFormat="text/xml;subtype=&quot;sensorML/1.0.1&quot;" version="1.0.0">\n\
-<procedure>urn:ioos:sensor:wmo:42001::anemometer1<\/procedure>\n\
+<procedure>'+stationId.replace('station','sensor')+'::'+propertyValue+'<\/procedure>\n\
 <\/DescribeSensor>';
 			break;
 		case 'go_airtemperature_1':
@@ -736,7 +817,7 @@ function wms_populateForm() {
 $(document).ready(function(){
     wms_init();
     var latlong;
-    map_init(latlong);
+    map_new(["19.076090", "72.877426"]);
 });
 
 $('#srs').on('change', function(){
