@@ -1,11 +1,16 @@
-/* Fetching the xml from the given URL,
-It will call when value of URL select box change */
+
 var capabilites;
 var offerings;
-var features = [];
-var vector;
-var arrayOfLatLong= [];
 var mymap;
+
+$(document).ready(function(){
+    
+    $("#timeForm").hide();
+    $("#availProp").hide();
+    map_new(["19.076090", "72.877426"]);
+});
+
+
 $("#provider").click(function(){
   
 	var div_data="<option value=\"gc\">GetCapabilities</option><option value=\"ds\">DescribeSensor</option><option value=\"go_airtemperature_1\">GetObservation Air Temperature</option><option value=\"go_pressure_1\">GetObservation Atmospheric Pressure</option>";
@@ -13,9 +18,25 @@ $("#provider").click(function(){
 	
 });
 
-function storeCoordinate(xVal, yVal, array) {
-    array.push({xVal, yVal});
-}
+$("#requests").on('change', function(){
+	
+	if($("#requests").val() == "gc"){
+		$("#availProp").hide();
+	}
+	
+	else if($("#requests").val() == "go_airtemperature_1"){
+		$("#availProp").hide();
+	}
+	
+	else if( $("#requests").val() == "ds"){
+		$("#availProp").show();
+	}
+	else
+		{
+		
+		}
+	 
+});
 
 $("#request-btn").click(function(){
 	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());this.blur();
@@ -39,13 +60,13 @@ $("#request-btn").click(function(){
          success: function (data) {
         	 capabilites = data;
              var sations = data.capabilities.sensorIds;
-             //var respXML = data.capabilities.responseXML;
+             // var respXML = data.capabilities.responseXML;
              var r = document.getElementById('results');
              
              r.value = data.capabilities.responseXML;
              $.each(sations,function(i,data)
              {
-              //alert(data.value+":"+data.text);
+              // alert(data.value+":"+data.text);
               var div_data="<option value="+data+">"+data+"</option>";
             // alert(div_data);
              $(div_data).appendTo('#stations'); 
@@ -57,7 +78,7 @@ $("#request-btn").click(function(){
 
              $.each(offerings,function(capI,capD)
                      {
-             			//console.log(capD.latitude+" "+capD.longitude
+             			// console.log(capD.latitude+" "+capD.longitude
             	 			if(capD.latitude!=null && capD.longitude != null){
             	 				var name = capD.description;
             	 				if(name==null || name == "")
@@ -65,14 +86,9 @@ $("#request-btn").click(function(){
             	 			var latLong = [name, capD.latitude, capD.longitude];
             	 			latitudeLongArray[capI] = latLong;
             	 			}
-            	 			//arrayOfLatLong.push(latLong);
-             					//storeCoordinate(capD.latitude, capD.longitude, arrayOfLatLong);
                      });
              mymap.remove();
              map_new(latitudeLongArray);
-            // map_init(offerings);
-             
-            // vector.addFeatures(features);
              
              },
              complete: function(){
@@ -81,7 +97,7 @@ $("#request-btn").click(function(){
        });
      }
      
-     if($("#requests").val()=="ds"){
+     else if($("#requests").val()=="ds"){
  		
  		$.ajax({
  	         type: "GET",
@@ -101,22 +117,26 @@ $("#request-btn").click(function(){
  	             var r = document.getElementById('results');
  	             
  	             r.value = data.sensorInfo.response;
- 	            var sensorDesc = [data.sensorInfo.sensorDesc.name, 
- 	            	data.sensorInfo.sensorDesc.description, 
- 	            	data.sensorInfo.sensorDesc.propertyName,
- 	            	data.sensorInfo.sensorDesc.classifierPublisher,
- 	            	data.sensorInfo.sensorDesc.country,
- 	            	data.sensorInfo.sensorDesc.address,
- 	            	data.sensorInfo.sensorDesc.latitude,
- 	            	data.sensorInfo.sensorDesc.longitude];
- 	            
- 	           mymap.remove();
- 	           map_desc(sensorDesc);
  	             
- 	         /*   $.each(capabilites,function(capI,capD)
- 	                     {
- 	             			console.log("hi");
- 	                     });*/
+ 	            if(!(data.sensorInfo.sensorDesc.errorMessage ==null || data.sensorInfo.sensorDesc.errorMessage == undefined))
+	            	 {
+	            	 	alert(data.sensorInfo.sensorDesc.errorMessage);
+	            	 }
+ 	            else
+ 	            	{
+ 	            		var sensorDesc = [data.sensorInfo.sensorDesc.name+"\n", 
+ 	 	            	data.sensorInfo.sensorDesc.description+"\n", 
+ 	 	            	data.sensorInfo.sensorDesc.propertyName+"\n",
+ 	 	            	data.sensorInfo.sensorDesc.classifierPublisher+"\n",
+ 	 	            	data.sensorInfo.sensorDesc.country+"\n",
+ 	 	            	data.sensorInfo.sensorDesc.address+"\n",
+ 	 	            	data.sensorInfo.sensorDesc.latitude,
+ 	 	            	data.sensorInfo.sensorDesc.longitude];
+ 	 	            
+ 	 	           		mymap.remove();
+ 	 	           		map_desc("ds",sensorDesc, data.sensorInfo.sensorDesc.latitude, data.sensorInfo.sensorDesc.longitude);
+ 	 	             
+ 	            	}
  	             
  	             },
  	             complete: function(){
@@ -124,6 +144,57 @@ $("#request-btn").click(function(){
  	            	  }
  	       });
  	}
+    
+     if($("#requests").val()=="go_airtemperature_1"){
+  		
+  		$.ajax({
+  	         type: "GET",
+  	         beforeSend: function(){
+  	        	    $('.ajax-loader').css("visibility", "visible");
+  	        	  },
+  	         url:"http://localhost:8080/ndbc/observation/airtemp/"+$("#stations").val()+"/"+$("#timePosition").val(),
+  	         dataType: "json",
+  	         contentType:'application/json',
+  	         responseType:'application/json',
+  	         cors: true ,
+  	         secure: true,
+  	         headers: {
+  	             'Access-Control-Allow-Origin': '*',
+  	         },
+  	         success: function (data) {
+  	             var r = document.getElementById('results');
+  	             
+  	             r.value = data.sensorInfo.response;
+  	             
+  	             if(!(data.sensorInfo.observation.errorMessage ==null || data.sensorInfo.observation.errorMessage == undefined))
+  	            	 {
+  	            	 	alert(data.sensorInfo.observation.errorMessage);
+  	            	 }
+  	             else
+  	            	 {
+  	            	 	var sensorDesc = [data.sensorInfo.observation.description+"\n", 
+  	  	            	data.sensorInfo.observation.boundedBy+"\n", 
+  	  	            	data.sensorInfo.observation.stationId+"\n",
+  	  	            	data.sensorInfo.observation.time+"\n",
+  	  	            	data.sensorInfo.observation.altitude+"\n",
+  	  	            	data.sensorInfo.observation.altitudeUnit+"\n",
+  	  	            	data.sensorInfo.observation.temperature+"\n",
+  	  	            	data.sensorInfo.observation.temperatureUnit+"\n",
+  	  	            	data.sensorInfo.observation.latitude,
+  	  	            	data.sensorInfo.observation.longitude];
+  	  	            
+  	  	            	mymap.remove();
+  	  	            	map_desc("go_airtemperature_1", sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude);
+  	            	 }
+  	            
+  	             
+  	             },
+  	             complete: function(){
+  	            	    $('.ajax-loader').css("visibility", "hidden");
+  	            	  }
+  	       });
+  	}
+     
 });
 
 $("#stations").on('change',function(){
@@ -137,88 +208,13 @@ $("#stations").on('change',function(){
    	 					$("#endTime").text(capD.endTime);
    	 					$("#timePosition").val(capD.beginTime);
    	 				}
-   	 			
-   	 			//arrayOfLatLong.push(latLong);
-    					//storeCoordinate(capD.latitude, capD.longitude, arrayOfLatLong);
             });
 	
 	
 });
 
-$("#station-btn").click(function(){
-	console.log("station btn");
-	
-});
-
-
-
-/*$('#requests').on('change', function(){
-    
-    });*/
-/*
-    $.ajax(
-        {
-            url:request_url,
-            type:"GET",
-            dataType: 'text',
-            success:function(data, status,jqXHR ){
-                xml_string = data;
-                wms_xmlParser()
-                wms_populateForm()
-            },
-            error: function(data) {
-                alert('Error occured!')
-            }
-
-        }
-    ) 
-    */
-
-/* XML parser */
-function wms_xmlParser() {
-    var domparser = new DOMParser();
-    var xmldoc = domparser.parseFromString(xml_string,"text/xml");
-    available_requests = [];
-    spatial_info = [];
-    layers = [];
-    var request_nodes = xmldoc.getElementsByTagName('Request')[0].childNodes;
-    for(j=0;j<request_nodes.length; j++){
-        if(request_nodes[j].nodeType == 1 ) {
-            available_requests.push(request_nodes[j].nodeName);
-        }
-    }
-
-    var layer_nodes = xmldoc.getElementsByTagName('Layer')[0].childNodes
-    for(i=0; i<layer_nodes.length; i++)
-    {
-        if (layer_nodes[i].nodeName == 'BoundingBox'){
-            spatial_info.push({
-                'CRS':layer_nodes[i].getAttribute('CRS'),
-                'minx':layer_nodes[i].getAttribute('minx'),
-                'miny':layer_nodes[i].getAttribute('miny'),
-                'maxx':layer_nodes[i].getAttribute('maxx'),
-                'maxy':layer_nodes[i].getAttribute('maxy'),
-            });
-        } else if(layer_nodes[i].nodeName == 'Layer'){
-            layers.push({
-                'name':layer_nodes[i].getElementsByTagName('Name')[0].childNodes[0].data,
-                'title':layer_nodes[i].getElementsByTagName('Title')[0].childNodes[0].data
-            });
-        }
-    }
-}
-function myMap() {
-	var mapProp= {
-	  center:new google.maps.LatLng(51.508742,-0.120850),
-	  zoom:5,
-	};
-	var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
-	}
-
-var map;
 
 function map_new(latlong) {
-	
 	
 	mymap = L.map('map').setView(["19.076090", "72.877426"], 3);
 	mapLink =
@@ -237,10 +233,9 @@ function map_new(latlong) {
 
 }
 
-function map_desc(latlong) {
+function map_desc(requestType, latlongDetails, latitude, longitude) {
 	
-	
-	mymap = L.map('map').setView([latlong[6], latlong[7]], 3);
+	mymap = L.map('map').setView([latitude, longitude], 3);
 	mapLink =
 	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 	L.tileLayer(
@@ -249,125 +244,27 @@ function map_desc(latlong) {
 	    maxZoom: 18,
 	  }).addTo(mymap);
 	
-	  marker = new L.marker([latlong[6], latlong[7]])
-	    .bindPopup(latlong[0]+" "+latlong[1]+" "+latlong[2]+" "+latlong[3]+" "+latlong[4]+" "+latlong[5])
+	var popMes = "";
+	  for(var i=0;i<latlongDetails.length;i++)
+		  {
+		  	if(requestType == "go_airtemperature_1"){
+		  		
+		  		if( (i>3&&i<6)){
+		  			popMes +="<h5>"
+		  		}
+		  		popMes += latlongDetails[i]+"<br>";
+		  		if( (i>3&&i<6)){
+		  			popMes +="</h5>"
+		  		}
+		  	}
+		  }
+	  marker = new L.marker([latitude, longitude])
+	    .bindPopup(popMes)
 	    .addTo(mymap);
 	
 
 }
-function map_init(latlong) {
-    map = new OpenLayers.Map("map");
 
-    var osm = new OpenLayers.Layer.OSM();
-    var toMercator = OpenLayers.Projection.transforms['EPSG:4326']['EPSG:3857'];
-    var center = toMercator({x:-0.05,y:51.5});
-    
-    /**
-     * Create 5 random vector features.  Your features would typically be fetched
-     * from the server. The features are given an attribute named "foo".
-     * The value of this attribute is an integer that ranges from 0 to 100.
-     */   
-    
-    if(latlong == null){
-    	console.log("Inside latlong null");
-    for(var i = 0; i < i; i++) {
-        features[i] = new OpenLayers.Feature.Vector(
-                toMercator(new OpenLayers.Geometry.Point(
-                    -0.040 - 0.05*Math.random(),
-                    51.49 + 0.02*Math.random())), 
-                {
-                    foo : 100 * Math.random() | 0
-                }, {
-                    fillColor : '#008040',
-                    fillOpacity : 0.8,                    
-                    strokeColor : "#ee9900",
-                    strokeOpacity : 1,
-                    strokeWidth : 1,
-                    pointRadius : 8
-                });
-    }
-    }
-    else
-    	{
-    	  $.each(latlong,function(capI,capD)
-                  {
-          			console.log(capD.latitude+" "+capD.longitude+"\n");
-         	 
-         	 features[capI] = new OpenLayers.Feature.Vector(
-                      toMercator(new OpenLayers.Geometry.Point(
-                     		 capD.latitude,
-                     		 capD.longitude)), 
-                      {
-                         // foo : 100 * Math.random() | 0
-                      }, {
-                          fillColor : '#008040',
-                          fillOpacity : 0.1,                    
-                          strokeColor : "#ee9900",
-                          strokeOpacity : 1,
-                          strokeWidth : 1,
-                          pointRadius : 2
-                      });
-                  });
-    	}
-        
-    // create the layer with listeners to create and destroy popups
-    vector = new OpenLayers.Layer.Vector("Points",{
-        eventListeners:{
-            'featureselected':function(evt){
-                var feature = evt.feature;
-                var popup = new OpenLayers.Popup.FramedCloud("popup",
-                    OpenLayers.LonLat.fromString(feature.geometry.toShortString()),
-                    null,
-                    "<div style='font-size:.8em'>Feature: " + feature.id +"<br>Foo: " + feature.attributes.foo+"</div>",
-                    null,
-                    true
-                );
-                feature.popup = popup;
-                map.addPopup(popup);
-            },
-            'featureunselected':function(evt){
-                var feature = evt.feature;
-                map.removePopup(feature.popup);
-                feature.popup.destroy();
-                feature.popup = null;
-            }
-        }
-    });
-    vector.addFeatures(features);
-
-    // create the select feature control
-    var selector = new OpenLayers.Control.SelectFeature(vector,{
-        hover:true,
-        autoActivate:true
-    }); 
-    
-    map.addLayers([osm, vector]);
-    map.addControl(selector);
-    map.setCenter(new OpenLayers.LonLat(center.x,center.y), 13);
-}
-
-
-
-
-/* Initialize the values */
-function wms_init(){
-    xml_string = '';    
-    available_requests = []
-    spatial_info = [];
-    layers = [];
-    map = new ol.Map({
-        target: 'wms_map',
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
-        ],
-        view: new ol.View({
-          center: ol.proj.fromLonLat([19.07283, 72.88261]),
-          zoom: 6
-        })
-      });
-}
 
 function insertXMLRequest(xmltype, stationId, propertyValue) {
 	var pd = document.getElementById('POSTDATA');
@@ -793,144 +690,3 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 	}
 }
 
-/* Function used to popup the form with XML values */
-function wms_populateForm() {
-    var new_options = '';
-    var new_srs = '';
-    var new_layers = '';
-
-    $.each(available_requests, function(i){
-        if(available_requests[i]!='GetMap') {
-            new_options += '<option disabled value="' + available_requests[i] + '">' + available_requests[i] + '</option>'
-        } else {
-            new_options += '<option value="' + available_requests[i] + '">' + available_requests[i] + '</option>'
-        }
-        
-    });
-    $('#requests option:gt(0)').remove();
-    $('#requests').append(new_options);
-
-    $.each(layers, function(i){
-        new_layers += '<option value="' + layers[i]['name'] + '">' + layers[i]['title'] + '</option>'
-    })
-    $('#layers option:gt(0)').remove();
-    $('#layers').append(new_layers);
-
-    
-    $.each(spatial_info, function(i){
-        new_srs += '<option value="' + spatial_info[i]['CRS'] + '">' + spatial_info[i]["CRS"] + '</option>' 
-    })
-    $('#srs option:gt(0)').remove();
-    $('#srs').append(new_srs);
-}
-
-
-$(document).ready(function(){
-    wms_init();
-    var latlong;
-   
-    
-   /* $('#timePosition').datetimepicker({  
-        format: 'DD/MM/YYYY HH:mm'
-    });
-    
-    $("#timePosLab").hide();
-    $("#timePosition").hide();*/
-    $("#timeForm").hide();
-    $("#availProp").hide();
-    map_new(["19.076090", "72.877426"]);
-});
-
-$("#requests").on('change', function(){
-	
-	if($("#requests").val() == "gc"){
-		$("#availProp").hide();
-
-	   // $("#timePosition").show();
-	}
-	
-	if($("#requests").val() == "go_airtemperature_1"){
-		$("#availProp").hide();
-
-	   // $("#timePosition").show();
-	}
-	
-
-	if( $("#requests").val() == "ds"){
-		$("#availProp").show();
-	}
-	 
-});
-
-$('#srs').on('change', function(){
-    current_value = this.value;
-    var i = spatial_info.length;
-    while(i-- >0){
-        if(spatial_info[i]['CRS'] == current_value){
-            $('#minx').val(spatial_info[i]['minx']);
-            $('#miny').val(spatial_info[i]['miny']);
-            $('#maxx').val(spatial_info[i]['maxx']);
-            $('#maxy').val(spatial_info[i]['maxy']);
-        }
-    }
-});
-
-/* Submit action */
-$('#wmsform').on('submit', function(e){
-    e.preventDefault();
-    url = $('#urls').val();
-    request = $('#requests').val();
-    srs = $('#srs').val();
-    layer = $('#layers').val();
-    minx = $('#minx').val();
-    miny = $('#miny').val();
-    maxx = $('#maxx').val();
-    maxy = $('#maxy').val();    
-
-    $('#wms_map').children().remove();
-
-    var map_layers = [
-        new ol.layer.Tile({
-            source: new ol.source.OSM(),
-           }
-        ),
-        new ol.layer.Tile({
-            source: new ol.source.TileWMS({
-                url: url,
-                params: {
-                    'LAYERS': layer,
-                    'FORMAT': 'image/png',
-                    'TILED': true,
-                    'ratio':1
-                },
-            }),
-        })
-    ];
-    
-    var extent = [minx, miny, maxx, maxy];
-    var map_prop = ol.proj.get(srs);
-    // var extent_new = ol.proj.transform(extent, 'EPSG:4326', srs)
-    try{
-        map_prop.setExtent(extent);
-    } catch(err) {
-        alert("There is some issue related to SRS, Try with other SRS");
-    }
-    var mousecontrol = new ol.control.MousePosition({
-        coordinateFormat: ol.coordinate.createStringXY(4),
-        projection: map_prop
-    })
-    
-    map = new ol.Map({
-        projection: map_prop,
-        layers: map_layers,
-        controls: ol.control.defaults().extend([mousecontrol]),
-        target: 'wms_map',
-        view: new ol.View({
-          center: ol.proj.transform([0,0], 'EPSG:4326', srs),
-          zoom: 7,
-        }),
-    });
-    
-   
-
-});

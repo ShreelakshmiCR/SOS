@@ -63,17 +63,18 @@ public class NdbcController {
 		return sensorInfo;
 	}
 	
-	@GetMapping("/ndbc/observation/airtemp/{stationId}")
-	public JSONObject getObservationAirTemp(@PathVariable String stationId)
+	@GetMapping("/ndbc/observation/airtemp/{stationId}/{time}")
+	public JSONObject getObservationAirTemp(@PathVariable String stationId, @PathVariable String time)
 	{
 		System.out.println("ID:"+stationId);
+		System.out.println("TIME:"+time);
 		JSONObject sensorInfo = new JSONObject();
 		sensorInfo.put("requestId", UUID.randomUUID().toString());
 		try
 		{
 			sensorInfo.put("code", "000");
 			sensorInfo.put("message", "Success");
-			sensorInfo.put("sensorInfo", ndbcService.getObservationAirTemp(stationId));
+			sensorInfo.put("sensorInfo", ndbcService.getObservationAirTemp(stationId, time));
 		}
 		catch(Exception e)
 		{

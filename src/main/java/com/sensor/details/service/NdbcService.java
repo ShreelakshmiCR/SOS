@@ -1,6 +1,7 @@
 package com.sensor.details.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,6 +21,7 @@ import org.w3c.dom.NodeList;
 
 import com.sensor.details.pojo.Capabalities;
 import com.sensor.details.pojo.CapbalitiesStationInfo;
+import com.sensor.details.pojo.ObservationAirTempInfo;
 import com.sensor.details.pojo.ObservationOfferings;
 import com.sensor.details.pojo.SensorDescription;
 import com.sensor.details.utils.XmlUtils;
@@ -210,27 +213,37 @@ public class NdbcService {
 
 					.asString();
 
+			System.out.println("Response:"+response.getBody());
 			Document document = XmlUtils.getDocument(response.getBody());
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			
 			SensorDescription sensorDesc = new SensorDescription();
 			
-			sensorDesc.setName(xpath.evaluate("//SensorML//member//System//name", document));
-			sensorDesc.setDescription(xpath.evaluate("//SensorML//member//System//description", document));
-			sensorDesc.setPropertyName(xpath.evaluate("//SensorML//member//System//identification//IdentifierList//identifier[@name='longName']//Term//value", document));
-			sensorDesc.setClassifierPlatform(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='platformType']//Term//value", document));
-			sensorDesc.setClassifierPublisher(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='publisher']//Term//value", document));
-			sensorDesc.setOrganizationName(xpath.evaluate("//SensorML//member//System//contact[contains(@xlink:role,'operator')]//ResponsibleParty//organizationName", document));
-			sensorDesc.setCountry(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//country", document));
-			sensorDesc.setAddress(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//deliveryPoint", document)
-					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//city", document)
-					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//administrativeArea", document)
-					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//postalCode", document)
-					+" "+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//electronicMailAddress", document));
-			
-			sensorDesc.setLatitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[0]);
-			sensorDesc.setLongitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[1].replace("\n", ""));;
-			
+			String errorMessage=xpath.evaluate("//ExceptionReport//Exception//ExceptionText", document);
+			if(!(errorMessage==null || errorMessage.isEmpty()))
+			{
+				sensorDesc.setErrorCode("001");
+				sensorDesc.setErrorMessage(errorMessage);
+				
+			}
+			else
+			{
+				sensorDesc.setName(xpath.evaluate("//SensorML//member//System//name", document)+"\n");
+				sensorDesc.setDescription(xpath.evaluate("//SensorML//member//System//description", document)+"\n");
+				sensorDesc.setPropertyName(xpath.evaluate("//SensorML//member//System//identification//IdentifierList//identifier[@name='longName']//Term//value", document)+"\n");
+				sensorDesc.setClassifierPlatform(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='platformType']//Term//value", document)+"\n");
+				sensorDesc.setClassifierPublisher(xpath.evaluate("//SensorML//member//System//classification//ClassifierList//classifier[@name='publisher']//Term//value", document)+"\n");
+				sensorDesc.setOrganizationName(xpath.evaluate("//SensorML//member//System//contact[contains(@xlink:role,'operator')]//ResponsibleParty//organizationName", document)+"\n");
+				sensorDesc.setCountry(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//country", document)+"\n");
+				sensorDesc.setAddress(xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//deliveryPoint", document)
+						+"\n"+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//city", document)
+						+"\n"+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//administrativeArea", document)
+						+"\n"+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//postalCode", document)
+						+"\n"+xpath.evaluate("//SensorML//member//System//contact//ResponsibleParty//contactInfo//address//electronicMailAddress", document));
+				
+				sensorDesc.setLatitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[0]);
+				sensorDesc.setLongitude(xpath.evaluate("//SensorML//member//System//location//Point//coordinates", document).split(" ")[1].replace("\n", ""));;
+			}
 			sensorInfo.put("response", response.getBody());
 			sensorInfo.put("sensorDesc",sensorDesc);
 		}
@@ -242,7 +255,7 @@ public class NdbcService {
 		return sensorInfo;
 	}
 
-	public Map<String,Object> getObservationAirTemp(String stationId)
+	public Map<String,Object> getObservationAirTemp(String stationId, String time)
 	{
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		try
@@ -258,7 +271,7 @@ public class NdbcService {
 					"    <ogc:TM_Equals>\r\n" + 
 					"      <ogc:PropertyName>om:samplingTime</ogc:PropertyName>\r\n" + 
 					"      <gml:TimeInstant>\r\n" + 
-					"        <gml:timePosition>2012-11-01T00:50:00Z</gml:timePosition>\r\n" + 
+					"        <gml:timePosition>"+time+"</gml:timePosition>\r\n" + 
 					"      </gml:TimeInstant>\r\n" + 
 					"    </ogc:TM_Equals>\r\n" + 
 					"  </sos:eventTime>\r\n" + 
@@ -280,7 +293,7 @@ public class NdbcService {
 							"    <ogc:TM_Equals>\r\n" + 
 							"      <ogc:PropertyName>om:samplingTime</ogc:PropertyName>\r\n" + 
 							"      <gml:TimeInstant>\r\n" + 
-							"        <gml:timePosition>2012-11-01T00:50:00Z</gml:timePosition>\r\n" + 
+							"        <gml:timePosition>"+time+"</gml:timePosition>\r\n" + 
 							"      </gml:TimeInstant>\r\n" + 
 							"    </ogc:TM_Equals>\r\n" + 
 							"  </sos:eventTime>\r\n" + 
@@ -294,7 +307,35 @@ public class NdbcService {
 			
 			System.out.println(response.getBody());
 			
+			Document document = XmlUtils.getDocument(response.getBody());
+			
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			
+			ObservationAirTempInfo observationAirTemp = new ObservationAirTempInfo();
+			
+			String errorMessage=xpath.evaluate("//ExceptionReport//Exception//ExceptionText", document);
+			if(!(errorMessage==null || errorMessage.isEmpty()))
+			{
+				observationAirTemp.setErrorCode("001");
+				observationAirTemp.setErrorMessage(errorMessage);
+				
+			}
+			else
+			{
+				observationAirTemp.setDescription(xpath.evaluate("//ObservationCollection//member//Observation//description", document));
+				observationAirTemp.setBoundedBy(xpath.evaluate("//ObservationCollection//boundedBy//Envelope//lowerCorner", document));
+				observationAirTemp.setLatitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//value", document));
+				observationAirTemp.setLongitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value", document));
+				observationAirTemp.setStationId(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value", document));
+				observationAirTemp.setTime(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='time']//Time//value", document));
+				observationAirTemp.setAltitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='altitude']//Quantity//value", document));
+				observationAirTemp.setAltitudeUnit(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='altitude']//Quantity//uom//@code", document));
+				observationAirTemp.setTemperature(xpath.evaluate("//ObservationCollection//result//DataStream//values", document).split(",")[1]);
+				observationAirTemp.setTemperatureUnit(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='air_temperature']//Quantity//uom//@code", document));
+			}
+			
 			resultMap.put("response", response.getBody());
+			resultMap.put("observation",observationAirTemp);
 		}
 		catch(Exception e)
 		{
