@@ -10,8 +10,5 @@ public class SensorDetailsApplication {
 		SpringApplication.run(SensorDetailsApplication.class, args);
 	}
 
-	
-	
-	
 }
 

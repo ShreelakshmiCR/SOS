@@ -17,12 +17,11 @@ public class SensorDescription {
 	
 	public SensorDescription() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public SensorDescription(String name, String description, String propertyName, String classifierPlatform,
 			String classifierPublisher, String organizationName, String country, String address, String latitude,
-			String longitude, String errorCode, String errorMessage) {
+			String longitude) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -34,8 +33,6 @@ public class SensorDescription {
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.errorCode = errorCode;
-		this.errorMessage = errorMessage;
 	}
 
 	public String getName() {
@@ -117,6 +114,8 @@ public class SensorDescription {
 	public void setLongitude(String longitude) {
 		this.longitude = longitude;
 	}
+	
+	
 
 	public String getErrorCode() {
 		return errorCode;
@@ -139,12 +138,6 @@ public class SensorDescription {
 		return "SensorDescription [name=" + name + ", description=" + description + ", propertyName=" + propertyName
 				+ ", classifierPlatform=" + classifierPlatform + ", classifierPublisher=" + classifierPublisher
 				+ ", organizationName=" + organizationName + ", country=" + country + ", address=" + address
-				+ ", latitude=" + latitude + ", longitude=" + longitude + ", errorCode=" + errorCode + ", errorMessage="
-				+ errorMessage + "]";
+				+ ", latitude=" + latitude + ", longitude=" + longitude + "]";
 	}
-	
-	
-	
-	
-	
 }

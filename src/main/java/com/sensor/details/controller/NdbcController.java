@@ -86,4 +86,31 @@ public class NdbcController {
 		return sensorInfo;
 	
 	}
+	
+	@GetMapping("/ndbc/observation/airtemp/{stationId}/{beginTime}/{endTime}")
+	public JSONObject getObservationAirTempSeries(@PathVariable String stationId, @PathVariable String beginTime, @PathVariable String endTime)
+	{
+		System.out.println("ID:"+stationId);
+		System.out.println("Begin TIME:"+beginTime);
+		System.out.println("End TIME:"+endTime);
+		
+		JSONObject sensorInfo = new JSONObject();
+		sensorInfo.put("requestId", UUID.randomUUID().toString());
+		try
+		{
+			sensorInfo.put("code", "000");
+			sensorInfo.put("message", "Success");
+			sensorInfo.put("sensorInfo", ndbcService.getObservationAirTempSeries(stationId, beginTime,endTime));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			sensorInfo.put("code", "999");
+			sensorInfo.put("status", false);
+			sensorInfo.put("message", "Request Failed");
+		}
+		return sensorInfo;
+	
+	}
+	
 }

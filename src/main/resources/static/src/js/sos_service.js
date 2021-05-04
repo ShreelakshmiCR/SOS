@@ -2,11 +2,14 @@
 var capabilites;
 var offerings;
 var mymap;
+var myChart;
 
 $(document).ready(function(){
     
     $("#timeForm").hide();
     $("#availProp").hide();
+    $("#availStn").hide();
+    $('#timeSeries').hide();
     map_new(["19.076090", "72.877426"]);
 });
 
@@ -22,17 +25,35 @@ $("#requests").on('change', function(){
 	
 	if($("#requests").val() == "gc"){
 		$("#availProp").hide();
+		$('#myChart').hide();
+		$('#timeSeries').hide();
+		
 	}
 	
 	else if($("#requests").val() == "go_airtemperature_1"){
 		$("#availProp").hide();
+		$('#myChart').hide();
+		  $("#availStn").show();
+		  $('#timeSeries').hide();
+		  $("#inTimeForm").show();
+		  $("#timeForm").show();
 	}
 	
 	else if( $("#requests").val() == "ds"){
 		$("#availProp").show();
+		$('#myChart').hide();
+		  $("#availStn").show();
+		  $('#timeSeries').hide();
+		  $("#timeForm").hide();
 	}
-	else
-		{
+	else if( $("#requests").val() == "go_airtemperature_series"){
+		$("#availProp").show();
+		 $("#availStn").show();
+		$('#myChart').show();
+		$('#timeSeries').show();
+		$("#inTimeForm").hide();
+	}
+	else {
 		
 		}
 	 
@@ -134,7 +155,7 @@ $("#request-btn").click(function(){
  	 	            	data.sensorInfo.sensorDesc.longitude];
  	 	            
  	 	           		mymap.remove();
- 	 	           		map_desc("ds",sensorDesc, data.sensorInfo.sensorDesc.latitude, data.sensorInfo.sensorDesc.longitude);
+ 	 	           		map_desc("ds",sensorDesc, data.sensorInfo.sensorDesc.latitude, data.sensorInfo.sensorDesc.longitude,null,null);
  	 	             
  	            	}
  	             
@@ -184,7 +205,7 @@ $("#request-btn").click(function(){
   	  	            	data.sensorInfo.observation.longitude];
   	  	            
   	  	            	mymap.remove();
-  	  	            	map_desc("go_airtemperature_1", sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude);
+  	  	            	map_desc("go_airtemperature_1", sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude,null,null);
   	            	 }
   	            
   	             
@@ -195,9 +216,72 @@ $("#request-btn").click(function(){
   	       });
   	}
      
+     if($("#requests").val()=="go_airtemperature_series"){
+   		
+   		$.ajax({
+   	         type: "GET",
+   	         beforeSend: function(){
+   	        	    $('.ajax-loader').css("visibility", "visible");
+   	        	  },
+   	         url:"http://localhost:8080/ndbc/observation/airtemp/"+$("#stations").val()+"/"+$("#beginTime").val()+"/"+$("#endTime").val(),
+   	         dataType: "json",
+   	         contentType:'application/json',
+   	         responseType:'application/json',
+   	         cors: true ,
+   	         secure: true,
+   	         headers: {
+   	             'Access-Control-Allow-Origin': '*',
+   	         },
+   	         success: function (data) {
+   	             var r = document.getElementById('results');
+   	             
+   	             r.value = data.sensorInfo.response;
+   	             
+   	             if(!(data.sensorInfo.observation.errorMessage ==null || data.sensorInfo.observation.errorMessage == undefined))
+   	            	 {
+   	            	 	alert(data.sensorInfo.observation.errorMessage);
+   	            	 }
+   	             else
+   	            	 {
+   	            	 	var sensorDesc = [data.sensorInfo.observation.description+"\n", 
+   	  	            	data.sensorInfo.observation.boundedBy+"\n", 
+   	  	            	data.sensorInfo.observation.stationId+"\n",
+   	  	            	data.sensorInfo.observation.beginTime+"\n",
+   	  	            	data.sensorInfo.observation.endTime+"\n",
+   	  	            	data.sensorInfo.observation.altitude+"\n",
+   	  	            	data.sensorInfo.observation.altitudeUnit+"\n",
+   	  	            	//data.sensorInfo.observation.temperature+"\n",
+   	  	            	data.sensorInfo.observation.temperatureUnit+"\n",
+   	  	            	data.sensorInfo.observation.latitude,
+   	  	            	data.sensorInfo.observation.longitude];
+   	            	 	
+   	            	 	
+	  	            	
+	  	            	var tempDates = [];
+	  	            	var tempValues = [];
+   	            	 $.each(data.sensorInfo.observation.airTempSeries,function(capI,capD)
+   	            			 {
+   	            		 			tempDates[capI] = capD.time;
+   	            		 			tempValues[capI] = capD.temp;
+   	            			 });
+   	  	            
+   	            	mymap.remove();
+  	            	map_desc("go_airtemperature_series", sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude,tempDates, tempValues);
+   	  	            	
+   	            	 }
+   	            
+   	             
+   	             },
+   	             complete: function(){
+   	            	    $('.ajax-loader').css("visibility", "hidden");
+   	            	  }
+   	       });
+   	}
+     
 });
 
 $("#stations").on('change',function(){
+	if($("#requests").val() != "gc" && $("#requests").val() != "ds"){
 	$("#timeForm").show();
 	
 	$.each(offerings,function(capI,capD)
@@ -210,7 +294,7 @@ $("#stations").on('change',function(){
    	 				}
             });
 	
-	
+	}
 });
 
 
@@ -233,7 +317,7 @@ function map_new(latlong) {
 
 }
 
-function map_desc(requestType, latlongDetails, latitude, longitude) {
+function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, tempValues) {
 	
 	mymap = L.map('map').setView([latitude, longitude], 3);
 	mapLink =
@@ -257,13 +341,48 @@ function map_desc(requestType, latlongDetails, latitude, longitude) {
 		  			popMes +="</h5>"
 		  		}
 		  	}
+		  	else
+		  		{
+		  			popMes += latlongDetails[i]+"<br>";
+		  		}
 		  }
+	
 	  marker = new L.marker([latitude, longitude])
 	    .bindPopup(popMes)
 	    .addTo(mymap);
 	
+	  if(requestType == "go_airtemperature_series"){
+	 
+	  
+	  const data = {
+			  labels: tempDates,
+			  datasets: [{
+			    label: 'Airtemp',
+			    backgroundColor: 'rgb(255, 99, 132)',
+			    borderColor: 'rgb(255, 99, 132)',
+			    data: tempValues,
+			  }]
+			};
+	  
+	  
+	  
+	  const config = {
+			  type: 'line',
+			  data,
+			  options: {}
+			};
 
+	  if(myChart!=undefined && myChart!=null)
+		  myChart.destroy();
+		
+	  myChart  = new Chart(
+			  $('#myChart'),
+			    config
+			  );
+	  $('#myChart').show();
+	  }
 }
+
 
 
 function insertXMLRequest(xmltype, stationId, propertyValue) {

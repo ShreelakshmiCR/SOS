@@ -19,9 +19,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.sensor.details.pojo.AirTempSeriesInfo;
 import com.sensor.details.pojo.Capabalities;
 import com.sensor.details.pojo.CapbalitiesStationInfo;
 import com.sensor.details.pojo.ObservationAirTempInfo;
+import com.sensor.details.pojo.ObservationAirTempSeriesInfo;
 import com.sensor.details.pojo.ObservationOfferings;
 import com.sensor.details.pojo.SensorDescription;
 import com.sensor.details.utils.XmlUtils;
@@ -336,6 +338,108 @@ public class NdbcService {
 			
 			resultMap.put("response", response.getBody());
 			resultMap.put("observation",observationAirTemp);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+	}
+	
+	public Map<String,Object> getObservationAirTempSeries(String stationId, String beginTime, String endTime)
+	{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try
+		{
+			
+			System.out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+					"<sos:GetObservation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:om=\"http://www.opengis.net/om/1.0\"\r\n" + 
+					"xsi:schemaLocation=\"http://www.opengis.net/sos/1.0 http://schemas.opengis.net/sos/1.0.0/sosAll.xsd\"\r\n" + 
+					"xmlns:sos=\"http://www.opengis.net/sos/1.0\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"\r\n" + 
+					"service=\"SOS\" version=\"1.0.0\" srsName=\"EPSG:4326\">\r\n" + 
+					"  <sos:offering>"+stationId+"</sos:offering>\r\n" + 
+					"  <sos:eventTime>\r\n" + 
+					"    <ogc:TM_During>\r\n" + 
+					"      <ogc:PropertyName>om:samplingTime</ogc:PropertyName>\r\n" + 
+					"      <gml:TimePeriod>\r\n" + 
+					"        <gml:beginPosition>"+beginTime+"</gml:beginPosition>\r\n" + 
+					"        <gml:endPosition>"+endTime+"</gml:endPosition>\r\n" + 
+					"      </gml:TimePeriod>\r\n" + 
+					"    </ogc:TM_During>\r\n" + 
+					"  </sos:eventTime>\r\n" + 
+					"  <sos:observedProperty>air_temperature</sos:observedProperty>\r\n" + 
+					"  <sos:responseFormat>text/xml;subtype=\"om/1.0.0\"</sos:responseFormat>\r\n" + 
+					"  <sos:resultModel>om:Observation</sos:resultModel>\r\n" + 
+					"  <sos:responseMode>inline</sos:responseMode>\r\n" + 
+					"</sos:GetObservation>");
+			
+			HttpResponse<String> response = Unirest.post("https://sdf.ndbc.noaa.gov/sos/server.php")
+					.header("Content-type", "text/xml")
+					.body("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+							"<sos:GetObservation xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:om=\"http://www.opengis.net/om/1.0\"\r\n" + 
+							"xsi:schemaLocation=\"http://www.opengis.net/sos/1.0 http://schemas.opengis.net/sos/1.0.0/sosAll.xsd\"\r\n" + 
+							"xmlns:sos=\"http://www.opengis.net/sos/1.0\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml/3.2\"\r\n" + 
+							"service=\"SOS\" version=\"1.0.0\" srsName=\"EPSG:4326\">\r\n" + 
+							"  <sos:offering>"+stationId+"</sos:offering>\r\n" + 
+							"  <sos:eventTime>\r\n" + 
+							"    <ogc:TM_During>\r\n" + 
+							"      <ogc:PropertyName>om:samplingTime</ogc:PropertyName>\r\n" + 
+							"      <gml:TimePeriod>\r\n" + 
+							"        <gml:beginPosition>"+beginTime+"</gml:beginPosition>\r\n" + 
+							"        <gml:endPosition>"+endTime+"</gml:endPosition>\r\n" + 
+							"      </gml:TimePeriod>\r\n" + 
+							"    </ogc:TM_During>\r\n" + 
+							"  </sos:eventTime>\r\n" + 
+							"  <sos:observedProperty>air_temperature</sos:observedProperty>\r\n" + 
+							"  <sos:responseFormat>text/xml;subtype=\"om/1.0.0\"</sos:responseFormat>\r\n" + 
+							"  <sos:resultModel>om:Observation</sos:resultModel>\r\n" + 
+							"  <sos:responseMode>inline</sos:responseMode>\r\n" + 
+							"</sos:GetObservation>")
+
+					.asString();
+			
+			System.out.println(response.getBody());
+			
+			Document document = XmlUtils.getDocument(response.getBody());
+			
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			
+			ObservationAirTempSeriesInfo observationAirTempSeriesInfo = new ObservationAirTempSeriesInfo();
+			
+			String errorMessage=xpath.evaluate("//ExceptionReport//Exception//ExceptionText", document);
+			if(!(errorMessage==null || errorMessage.isEmpty()))
+			{
+				observationAirTempSeriesInfo.setErrorCode("001");
+				observationAirTempSeriesInfo.setErrorMessage(errorMessage);
+				
+			}
+			else
+			{
+				observationAirTempSeriesInfo.setDescription(xpath.evaluate("//ObservationCollection//member//Observation//description", document));
+				observationAirTempSeriesInfo.setLatitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//value", document));
+				observationAirTempSeriesInfo.setLongitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value", document));
+				observationAirTempSeriesInfo.setStationId(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value", document));
+				observationAirTempSeriesInfo.setBeginTime(xpath.evaluate("//ObservationCollection//member//Observation//samplingTime//TimePeriod//beginPosition", document));
+				observationAirTempSeriesInfo.setEndTime(xpath.evaluate("//ObservationCollection//member//Observation//samplingTime//TimePeriod//endPosition", document));
+				observationAirTempSeriesInfo.setAltitude(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='altitude']//Quantity//value", document));
+				observationAirTempSeriesInfo.setAltitudeUnit(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='altitude']//Quantity//uom//@code", document));
+				observationAirTempSeriesInfo.setTemperatureUnit(xpath.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='air_temperature']//Quantity//uom//@code", document));
+				
+				String[] tempArray = xpath.evaluate("//ObservationCollection//result//DataStream//values", document).split("\n");
+				List<AirTempSeriesInfo> tempSeriesInfo = new ArrayList<AirTempSeriesInfo>();
+				for(String each : tempArray) {
+					AirTempSeriesInfo obj = new AirTempSeriesInfo();
+					String[] tempDetail = each.split(",");
+					obj.setTemp(tempDetail[2]);
+					obj.setTime(tempDetail[0]);
+					tempSeriesInfo.add(obj);
+					
+				}
+				observationAirTempSeriesInfo.setAirTempSeries(tempSeriesInfo);
+			}
+			resultMap.put("response", response.getBody());
+			resultMap.put("observation",observationAirTempSeriesInfo);
 		}
 		catch(Exception e)
 		{
