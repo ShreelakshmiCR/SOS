@@ -10,7 +10,9 @@ $(document).ready(function(){
     $("#availProp").hide();
     $("#availStn").hide();
     $('#timeSeries').hide();
-    map_new(["19.076090", "72.877426"]);
+	$("#bboxSearch").hide();
+    map_new(["0", "0"]);
+	$('#stations').select2();
 });
 
 
@@ -25,18 +27,31 @@ $("#requests").on('change', function(){
 	
 	if($("#requests").val() == "gc"){
 		$("#availProp").hide();
+		$("#availStn").hide();
 		$('#myChart').hide();
 		$('#timeSeries').hide();
+		$("#timeForm").hide();
+		$("#bboxSearch").show();
+
+		if(offerings!=null || offerings!=undefined){
+		$('#map').children().remove();
+		var latitudeLongArray = new Array(offerings.length);
+
+		$.each(offerings,function(capI,capD)
+				{
+					// console.log(capD.latitude+" "+capD.longitude
+						if(capD.latitude!=null && capD.longitude != null){
+							var name = capD.description;
+							if(name==null || name == "")
+								name = capD.name;
+						var latLong = [name, capD.latitude, capD.longitude];
+						latitudeLongArray[capI] = latLong;
+						}
+				});
+		mymap.remove();
+		map_new(latitudeLongArray);
+			}
 		
-	}
-	
-	else if($("#requests").val() == "go_airtemperature_1"){
-		$("#availProp").hide();
-		$('#myChart').hide();
-		  $("#availStn").show();
-		  $('#timeSeries').hide();
-		  $("#inTimeForm").show();
-		  $("#timeForm").show();
 	}
 	
 	else if( $("#requests").val() == "ds"){
@@ -45,19 +60,183 @@ $("#requests").on('change', function(){
 		  $("#availStn").show();
 		  $('#timeSeries').hide();
 		  $("#timeForm").hide();
+		  $("#bboxSearch").hide();
+
+		  if(offerings!=null || offerings!=undefined){
+			$('#map').children().remove();
+			var latitudeLongArray = new Array(offerings.length);
+	
+			$.each(offerings,function(capI,capD)
+					{
+						// console.log(capD.latitude+" "+capD.longitude
+							if(capD.latitude!=null && capD.longitude != null){
+								var name = capD.description;
+								if(name==null || name == "")
+									name = capD.name;
+							var latLong = [name, capD.latitude, capD.longitude];
+							latitudeLongArray[capI] = latLong;
+							}
+					});
+			mymap.remove();
+			map_new(latitudeLongArray);
+				}
 	}
-	else if( $("#requests").val() == "go_airtemperature_series"){
-		$("#availProp").show();
+
+	else
+	{
+		$("#bboxSearch").hide();
+	//$("#stations").select2('destroy');
+	//$("#stations").empty();
+	$("#stations").children('option').hide();
+	 var div_data="";
+	 $('#map').children().remove();
+	 var latitudeLongArray = new Array(offerings.length);
+	 $.each(offerings,function(capI,capD)
+	 {
+		
+		
+		$.each(capD.observedProperty,function(opI,opD) {
+			if($("#requests").val().includes("go_airtemperature") && opD == "http://mmisw.org/ont/cf/parameter/air_temperature")
+			{
+				
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_pressure") && opD == "http://mmisw.org/ont/cf/parameter/air_pressure_at_sea_level")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_conductivity") && opD == "http://mmisw.org/ont/cf/parameter/sea_water_electrical_conductivity")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_currents") && opD == "http://mmisw.org/ont/cf/parameter/currents")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_salinity") && opD == "http://mmisw.org/ont/cf/parameter/sea_water_salinity")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_waterlevel") && opD == "http://mmisw.org/ont/cf/parameter/sea_floor_depth_below_sea_surface")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_watertemperature") && opD == "http://mmisw.org/ont/cf/parameter/sea_water_temperature")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_waves") && opD == "http://mmisw.org/ont/cf/parameter/waves")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			if($("#requests").val().includes("go_winds") && opD == "http://mmisw.org/ont/cf/parameter/winds")
+			{
+				$("#stations").children("option[value^='"+capD.name+"']").show();
+				if(capD.latitude!=null && capD.longitude != null){ 
+					latitudeLongArray.push([capD.name, capD.latitude, capD.longitude]);
+				}
+			}
+			$(div_data).appendTo('#stations');	
+		});
+	 });
+	 mymap.remove();
+	 map_new(latitudeLongArray);
+	 //$('#stations').select2();	
+	}
+	//-------------------
+	if( $("#requests").val().includes("_series")){
+		$("#availProp").hide();
 		 $("#availStn").show();
 		$('#myChart').show();
 		$('#timeSeries').show();
+		$("#timeForm").show();
 		$("#inTimeForm").hide();
 	}
+	else if($("#requests").val().includes("_1")){
+		$("#availProp").hide();
+		$('#myChart').hide();
+		  $("#availStn").show();
+		  $('#timeSeries').hide();
+		  $("#inTimeForm").show();
+		  $("#timeForm").show();
+	}
+	
 	else {
 		
 		}
-	 
+	 //---------------------------
+	  
 });
+
+$("#bb-search-btn").click(function(){
+
+	var llclat = $("#llclat").val();
+	var llclon = $("#llclon").val();
+
+	var urclat = $("#urclat").val();
+	var urclon = $("#urclon").val();
+	
+	var lrclat = $("#llclat").val();
+	var lrclon = $("#urclon").val();
+	
+	var ulclat = $("#llclat").val();
+	var ulclon = $("#urclon").val();
+
+	//mymap.remove();
+	map_bb(llclat,llclon,ulclat,ulclon,lrclat, lrclon, urclat, urclon);
+
+});
+
+function getPropertyName(requestValue)
+{
+	var propertyName = "";
+	switch(requestValue) {
+		case 'go_airtemperature_1': propertyName = "air_temperature"; break;
+		case 'go_airtemperature_series': propertyName = "air_temperature"; break;
+		case 'go_pressure_1': propertyName = "air_pressure_at_sea_level"; break;
+		case 'go_pressure_series': propertyName = "air_pressure_at_sea_level"; break;
+		case 'go_conductivity_1': propertyName = "sea_water_electrical_conductivity"; break;
+		case 'go_conductivity_series': propertyName = "sea_water_electrical_conductivity"; break;
+		case 'go_currents_1': propertyName = "currents"; break;
+		case 'go_currents_series': propertyName = "currents"; break;
+		case 'go_salinity_1': propertyName = "sea_water_salinity"; break;
+		case 'go_salinity_series': propertyName = "sea_water_salinity"; break;
+		case 'go_waterlevel_1': propertyName = "sea_floor_depth_below_sea_surface"; break;
+		case 'go_waterlevel_series': propertyName = "sea_floor_depth_below_sea_surface"; break;
+		case 'go_watertemperature_1': propertyName = "sea_water_temperature"; break;
+		case 'go_watertemperature_series': propertyName = "sea_water_temperature"; break;
+		case 'go_waves_1': propertyName = "waves"; break;
+		case 'go_waves_series': propertyName = "waves"; break;
+		case 'go_winds_1': propertyName = "winds"; break;
+		case 'go_winds_series': propertyName = "winds"; break;
+	}
+	return propertyName;
+}
+
 
 $("#request-btn").click(function(){
 	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());this.blur();
@@ -80,36 +259,48 @@ $("#request-btn").click(function(){
          },
          success: function (data) {
         	 capabilites = data;
-             var sations = data.capabilities.sensorIds;
+             
              // var respXML = data.capabilities.responseXML;
-             var r = document.getElementById('results');
-             
-             r.value = data.capabilities.responseXML;
-             $.each(sations,function(i,data)
-             {
-              // alert(data.value+":"+data.text);
-              var div_data="<option value="+data+">"+data+"</option>";
-            // alert(div_data);
-             $(div_data).appendTo('#stations'); 
-             }); 
-             
-             offerings= data.capabilities.observationOfferings;
-             $('#map').children().remove();
-             var latitudeLongArray = new Array(offerings.length);
+			 if(data.code == "000") 
+			 	{
 
-             $.each(offerings,function(capI,capD)
-                     {
-             			// console.log(capD.latitude+" "+capD.longitude
-            	 			if(capD.latitude!=null && capD.longitude != null){
-            	 				var name = capD.description;
-            	 				if(name==null || name == "")
-            	 					name = capD.name;
-            	 			var latLong = [name, capD.latitude, capD.longitude];
-            	 			latitudeLongArray[capI] = latLong;
-            	 			}
-                     });
-             mymap.remove();
-             map_new(latitudeLongArray);
+					var r = document.getElementById('results');
+             
+					r.value = data.capabilities.responseXML;
+
+					var sations = data.capabilities.sensorIds;
+					
+					$.each(sations,function(i,data)
+					{
+					// alert(data.value+":"+data.text);
+					var div_data="<option value="+data+">"+data+"</option>";
+					// alert(div_data);
+					$(div_data).appendTo('#stations'); 
+					}); 
+					$('#stations').select2();
+					offerings= data.capabilities.observationOfferings;
+					$('#map').children().remove();
+					var latitudeLongArray = new Array(offerings.length);
+
+					$.each(offerings,function(capI,capD)
+							{
+								// console.log(capD.latitude+" "+capD.longitude
+									if(capD.latitude!=null && capD.longitude != null){
+										var name = capD.description;
+										if(name==null || name == "")
+											name = capD.name;
+									var latLong = [name, capD.latitude, capD.longitude];
+									latitudeLongArray[capI] = latLong;
+									}
+							});
+					mymap.remove();
+					map_new(latitudeLongArray);
+				}
+			else
+				{
+						alert(data.message);
+				}
+
              
              },
              complete: function(){
@@ -135,22 +326,24 @@ $("#request-btn").click(function(){
  	             'Access-Control-Allow-Origin': '*',
  	         },
  	         success: function (data) {
- 	             var r = document.getElementById('results');
- 	             
- 	             r.value = data.sensorInfo.response;
- 	             
- 	            if(!(data.sensorInfo.sensorDesc.errorMessage ==null || data.sensorInfo.sensorDesc.errorMessage == undefined))
+ 	             	             
+				if(data.code == "000")
+				{
+					var r = document.getElementById('results');
+ 	             	r.value = data.sensorInfo.response;
+
+					if(!(data.sensorInfo.sensorDesc.errorMessage ==null || data.sensorInfo.sensorDesc.errorMessage == undefined))
 	            	 {
 	            	 	alert(data.sensorInfo.sensorDesc.errorMessage);
 	            	 }
- 	            else
+ 	            	else
  	            	{
- 	            		var sensorDesc = [data.sensorInfo.sensorDesc.name+"\n", 
- 	 	            	data.sensorInfo.sensorDesc.description+"\n", 
- 	 	            	data.sensorInfo.sensorDesc.propertyName+"\n",
- 	 	            	data.sensorInfo.sensorDesc.classifierPublisher+"\n",
- 	 	            	data.sensorInfo.sensorDesc.country+"\n",
- 	 	            	data.sensorInfo.sensorDesc.address+"\n",
+ 	            		var sensorDesc = [data.sensorInfo.sensorDesc.name, 
+ 	 	            	data.sensorInfo.sensorDesc.description, 
+ 	 	            	data.sensorInfo.sensorDesc.propertyName,
+ 	 	            	data.sensorInfo.sensorDesc.classifierPublisher,
+ 	 	            	data.sensorInfo.sensorDesc.country,
+ 	 	            	data.sensorInfo.sensorDesc.address,
  	 	            	data.sensorInfo.sensorDesc.latitude,
  	 	            	data.sensorInfo.sensorDesc.longitude];
  	 	            
@@ -158,7 +351,11 @@ $("#request-btn").click(function(){
  	 	           		map_desc("ds",sensorDesc, data.sensorInfo.sensorDesc.latitude, data.sensorInfo.sensorDesc.longitude,null,null);
  	 	             
  	            	}
- 	             
+				}
+				else
+				{
+						alert(data.message);
+				}             
  	             },
  	             complete: function(){
  	            	    $('.ajax-loader').css("visibility", "hidden");
@@ -166,14 +363,14 @@ $("#request-btn").click(function(){
  	       });
  	}
     
-     if($("#requests").val()=="go_airtemperature_1"){
+    else if($("#requests").val().includes("_1")){
   		
   		$.ajax({
   	         type: "GET",
   	         beforeSend: function(){
   	        	    $('.ajax-loader').css("visibility", "visible");
   	        	  },
-  	         url:"http://localhost:8080/ndbc/observation/airtemp/"+$("#stations").val()+"/"+$("#timePosition").val(),
+  	         url:"http://localhost:8080/ndbc/observation/"+$("#stations").val()+"/"+getPropertyName($("#requests").val())+"/"+$("#timePosition").val(),
   	         dataType: "json",
   	         contentType:'application/json',
   	         responseType:'application/json',
@@ -193,14 +390,14 @@ $("#request-btn").click(function(){
   	            	 }
   	             else
   	            	 {
-  	            	 	var sensorDesc = [data.sensorInfo.observation.description+"\n", 
-  	  	            	data.sensorInfo.observation.boundedBy+"\n", 
-  	  	            	data.sensorInfo.observation.stationId+"\n",
-  	  	            	data.sensorInfo.observation.time+"\n",
-  	  	            	data.sensorInfo.observation.altitude+"\n",
-  	  	            	data.sensorInfo.observation.altitudeUnit+"\n",
-  	  	            	data.sensorInfo.observation.temperature+"\n",
-  	  	            	data.sensorInfo.observation.temperatureUnit+"\n",
+  	            	 	var sensorDesc = [data.sensorInfo.observation.description, 
+  	  	            	data.sensorInfo.observation.boundedBy, 
+  	  	            	data.sensorInfo.observation.stationId,
+  	  	            	data.sensorInfo.observation.time,
+  	  	            	data.sensorInfo.observation.altitude,
+  	  	            	data.sensorInfo.observation.altitudeUnit,
+  	  	            	data.sensorInfo.observation.temperature,
+  	  	            	data.sensorInfo.observation.temperatureUnit,
   	  	            	data.sensorInfo.observation.latitude,
   	  	            	data.sensorInfo.observation.longitude];
   	  	            
@@ -216,14 +413,14 @@ $("#request-btn").click(function(){
   	       });
   	}
      
-     if($("#requests").val()=="go_airtemperature_series"){
+  else if($("#requests").val().includes("_series")){
    		
    		$.ajax({
    	         type: "GET",
    	         beforeSend: function(){
    	        	    $('.ajax-loader').css("visibility", "visible");
    	        	  },
-   	         url:"http://localhost:8080/ndbc/observation/airtemp/"+$("#stations").val()+"/"+$("#beginTime").val()+"/"+$("#endTime").val(),
+   	         url:"http://localhost:8080/ndbc/observation/"+$("#stations").val()+"/"+getPropertyName($("#requests").val())+"/"+$("#beginTime").val()+"/"+$("#endTime").val(),
    	         dataType: "json",
    	         contentType:'application/json',
    	         responseType:'application/json',
@@ -243,15 +440,15 @@ $("#request-btn").click(function(){
    	            	 }
    	             else
    	            	 {
-   	            	 	var sensorDesc = [data.sensorInfo.observation.description+"\n", 
-   	  	            	data.sensorInfo.observation.boundedBy+"\n", 
-   	  	            	data.sensorInfo.observation.stationId+"\n",
-   	  	            	data.sensorInfo.observation.beginTime+"\n",
-   	  	            	data.sensorInfo.observation.endTime+"\n",
-   	  	            	data.sensorInfo.observation.altitude+"\n",
-   	  	            	data.sensorInfo.observation.altitudeUnit+"\n",
-   	  	            	//data.sensorInfo.observation.temperature+"\n",
-   	  	            	data.sensorInfo.observation.temperatureUnit+"\n",
+   	            	 	var sensorDesc = [data.sensorInfo.observation.description, 
+   	  	            	data.sensorInfo.observation.boundedBy, 
+   	  	            	data.sensorInfo.observation.stationId,
+   	  	            	data.sensorInfo.observation.beginTime,
+   	  	            	data.sensorInfo.observation.endTime,
+   	  	            	data.sensorInfo.observation.altitude,
+   	  	            	data.sensorInfo.observation.altitudeUnit,
+   	  	            	//data.sensorInfo.observation.temperature,
+   	  	            	data.sensorInfo.observation.temperatureUnit,
    	  	            	data.sensorInfo.observation.latitude,
    	  	            	data.sensorInfo.observation.longitude];
    	            	 	
@@ -281,26 +478,86 @@ $("#request-btn").click(function(){
 });
 
 $("#stations").on('change',function(){
-	if($("#requests").val() != "gc" && $("#requests").val() != "ds"){
-	$("#timeForm").show();
-	
+	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());
+	$("#property option:selected").prop("selected", false);
 	$.each(offerings,function(capI,capD)
             {
    	 			if(capD.name == $("#stations").val())
    	 				{
    	 					$("#beginTime").text(capD.beginTime);
    	 					$("#endTime").text(capD.endTime);
+						$("#beginPosition").text(capD.beginTime);
+   	 					$("#endPosition").text(capD.endTime);
    	 					$("#timePosition").val(capD.beginTime);
+						$("#property").children('option').hide();
+						$.each(capD.observedProperty,function(opI,opD) {
+							if(opD == "http://mmisw.org/ont/cf/parameter/air_temperature")
+							{
+								$("#property").children("option[value^=airtemp1]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/air_pressure_at_sea_level")
+							{
+								$("#property").children("option[value^=baro1]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/sea_water_electrical_conductivity")
+							{
+								$("#property").children("option[value^=ct1]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/currents")
+							{
+								$("#property").children("option[value^=adcp0]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/sea_water_salinity")
+							{
+								$("#property").children("option[value^=ct1]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/sea_floor_depth_below_sea_surface")
+							{
+								$("#property").children("option[value^=tsunameter0]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/sea_water_temperature")
+							{
+								$("#property").children("option[value^=watertemp1]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/waves")
+							{
+								$("#property").children("option[value^=seismometer0]").show();	
+							}
+							if(opD == "http://mmisw.org/ont/cf/parameter/winds")
+							{
+								$("#property").children("option[value^=anemometer1]").show();	
+							}
+						});
+   	 				}
+            });
+	
+/*
+
+	if($("#requests").val() != "gc" && $("#requests").val() != "ds"){
+		$("#timeForm").show();
+	
+		$.each(offerings,function(capI,capD)
+            {
+   	 			if(capD.name == $("#stations").val())
+   	 				{
+   	 					$("#beginTime").text(capD.beginTime);
+   	 					$("#endTime").text(capD.endTime);
+						$("#beginPosition").text(capD.beginTime);
+   	 					$("#endPosition").text(capD.endTime);
+   	 					$("#timePosition").val(capD.beginTime);
+						$("#property").children('option').hide();
+						
    	 				}
             });
 	
 	}
+	*/
 });
 
 
 function map_new(latlong) {
 	
-	mymap = L.map('map').setView(["19.076090", "72.877426"], 3);
+	mymap = L.map('map').setView(["19.076090", "72.877426"], 1);
 	mapLink =
 	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 	L.tileLayer(
@@ -310,16 +567,25 @@ function map_new(latlong) {
 	  }).addTo(mymap);
 
 	for (var i = 0; i < latlong.length; i++) {
+		if(latlong[i]!=undefined){
 	  marker = new L.marker([latlong[i][1], latlong[i][2]],{ iconOptions: { color: "rgb(0,0,100)" }})
 	    .bindPopup(latlong[i][0])
 	    .addTo(mymap);
+		}
 	}
+
+	var polygon = L.rectangle([
+		[51.509, -0.08],
+		[51.503, -0.06],
+		[51.51, -0.047],
+		[51.61, -0.049]
+	]).addTo(mymap);
 
 }
 
 function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, tempValues) {
 	
-	mymap = L.map('map').setView([latitude, longitude], 3);
+	mymap = L.map('map').setView([latitude, longitude], 1);
 	mapLink =
 	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 	L.tileLayer(
@@ -331,15 +597,66 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 	var popMes = "";
 	  for(var i=0;i<latlongDetails.length;i++)
 		  {
-		  	if(requestType == "go_airtemperature_1"){
+
+			if(requestType == "ds")
+			{
+				if(i==0)
+					popMes += "StationId    : <b>";
+				if(i==1)
+					popMes += "Description  : <b>";
+				if(i==2)
+					popMes += "Property     : <b>";
+				if(i==3)
+					popMes += "Organization : <b>";
+				if(i==4)
+					popMes += "Country      : <b>";
+				if(i==5)
+					popMes += "Address      : <b>";
+				if(i==6 )
+					popMes += "Latitude     : <b>";
+				if(i==7 )
+					popMes += "Logitude     : <b>";
+					
+				popMes += latlongDetails[i]+"</b><br>";
+					
+			}
+		  	else if(requestType == "go_airtemperature_1" ){
 		  		
-		  		if( (i>3&&i<6)){
-		  			popMes +="<h5>"
-		  		}
-		  		popMes += latlongDetails[i]+"<br>";
-		  		if( (i>3&&i<6)){
-		  			popMes +="</h5>"
-		  		}
+				if(i==0)
+					popMes += "Description  : <b>"+latlongDetails[i]+"</b><br>";
+				//if(i==1)
+				//	popMes += "Description  : <b>"
+				if(i==2)
+					popMes += "Station ID   : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==3)
+					popMes += "Time         : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==4)
+					popMes += "Altitude      : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
+				if(i==6)
+					popMes += "Temperature   : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+" "+cel+"</b><br>";
+				if(i==8 )
+					popMes += "Latitude     : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==9 )
+					popMes += "Logitude     : <b>"+latlongDetails[i]+"</b><br>";
+		  	}
+			else if(requestType == "go_airtemperature_series"){
+		  		
+				if(i==0)
+					popMes += "Description  : <b>"+latlongDetails[i]+"</b><br>";
+				//if(i==1)
+				//	popMes += "Description  : <b>"
+				if(i==2)
+					popMes += "Station ID   : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==3)
+					popMes += "Begin Time   : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==4)
+					popMes += "End Time     : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==5)
+					popMes += "Altitude     : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
+				if(i==8 )
+					popMes += "Latitude     : <b>"+latlongDetails[i]+"</b><br>";
+				if(i==9 )
+					popMes += "Logitude     : <b>"+latlongDetails[i]+"</b><br>";
 		  	}
 		  	else
 		  		{
@@ -357,7 +674,7 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 	  const data = {
 			  labels: tempDates,
 			  datasets: [{
-			    label: 'Airtemp',
+			    label: 'Time Series',
 			    backgroundColor: 'rgb(255, 99, 132)',
 			    borderColor: 'rgb(255, 99, 132)',
 			    data: tempValues,
@@ -383,7 +700,37 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 	  }
 }
 
+function map_bb(llclat, llclong, ulclat, ulclon, lrclat, lrclon, urclat, urclon) {
+	
+	/*
+	mymap = L.map('map').setView(["19.076090", "72.877426"], 8);
+	mapLink =
+	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+	L.tileLayer(
+	  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; ' + mapLink + ' Contributors',
+	    maxZoom: 18,
+	  }).addTo(mymap);*/
 
+	  /*
+	for (var i = 0; i < latlong.length; i++) {
+		if(latlong[i]!=undefined){
+	  marker = new L.marker([latlong[i][1], latlong[i][2]],{ iconOptions: { color: "rgb(0,0,100)" }})
+	    .bindPopup(latlong[i][0])
+	    .addTo(mymap);
+		}
+	}*/
+
+	var polygon = L.rectangle([
+		[llclat, llclong],
+		[ulclat, ulclon],
+		[lrclat, lrclon],
+		[urclat, urclon]
+	]).addTo(mymap);
+
+	mymap.fitBounds(polygon.getBounds());
+
+}
 
 function insertXMLRequest(xmltype, stationId, propertyValue) {
 	var pd = document.getElementById('POSTDATA');
@@ -421,12 +768,12 @@ service="SOS" outputFormat="text/xml;subtype=&quot;sensorML/1.0.1&quot;" version
 xsi:schemaLocation="http://www.opengis.net/sos/1.0 http://schemas.opengis.net/sos/1.0.0/sosAll.xsd"\n\
 xmlns:sos="http://www.opengis.net/sos/1.0" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml/3.2"\n\
 service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
-<sos:offering>urn:ioos:station:wmo:41012<\/sos:offering>\n\
+<sos:offering>'+stationId+'<\/sos:offering>\n\
 <sos:eventTime>\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -442,13 +789,13 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 xsi:schemaLocation="http://www.opengis.net/sos/1.0 http://schemas.opengis.net/sos/1.0.0/sosAll.xsd"\n\
 xmlns:sos="http://www.opengis.net/sos/1.0" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml/3.2"\n\
 service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
-<sos:offering>urn:ioos:station:wmo:41012<\/sos:offering>\n\
+<sos:offering>'+stationId+'<\/sos:offering>\n\
 <sos:eventTime>\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -469,7 +816,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-07-01T01:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -490,8 +837,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-07-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-07-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -512,7 +859,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -533,8 +880,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -555,7 +902,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -576,8 +923,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -598,7 +945,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-07-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -619,8 +966,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-07-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-07-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -641,7 +988,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:00:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -662,8 +1009,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -684,7 +1031,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -705,8 +1052,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -727,7 +1074,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -748,8 +1095,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\
@@ -770,7 +1117,7 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_Equals>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimeInstant>\n\
-<gml:timePosition>2012-11-01T00:50:00Z<\/gml:timePosition>\n\
+<gml:timePosition>'+$("#timePosition").val()+'<\/gml:timePosition>\n\
 <\/gml:TimeInstant>\n\
 <\/ogc:TM_Equals>\n\
 <\/sos:eventTime>\n\
@@ -791,8 +1138,8 @@ service="SOS" version="1.0.0" srsName="EPSG:4326">\n\
 <ogc:TM_During>\n\
 <ogc:PropertyName>om:samplingTime<\/ogc:PropertyName>\n\
 <gml:TimePeriod>\n\
-<gml:beginPosition>2012-11-01T00:00:00Z<\/gml:beginPosition>\n\
-<gml:endPosition>2012-11-02T00:00:00Z<\/gml:endPosition>\n\
+<gml:beginPosition>'+$("#beginTime").val()+'<\/gml:beginPosition>\n\
+<gml:endPosition>'+$("#endTime").val()+'<\/gml:endPosition>\n\
 <\/gml:TimePeriod>\n\
 <\/ogc:TM_During>\n\
 <\/sos:eventTime>\n\

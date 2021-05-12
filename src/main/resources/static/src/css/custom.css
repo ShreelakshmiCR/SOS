@@ -1,49 +1,53 @@
-.custom-border{
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding: 12px;
-    margin-bottom: 15px;
+.custom-border {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 12px;
+  margin-bottom: 15px;
 }
 .navbar {
-    width: 100%;
+  width: 100%;
 }
 
-.map-container{
-overflow:hidden;
-padding-bottom:56.25%;
-position:relative;
-height:0;
+.map-container {
+  overflow: hidden;
+  padding-bottom: 56.25%;
+  position: relative;
+  height: 0;
 }
-.map-container iframe{
-left:0;
-top:0;
-height:100%;
-width:100%;
-position:absolute;
+.map-container iframe {
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
 }
-.map-responsive{
-    overflow:hidden;
-    padding-bottom:50%;
-    position:relative;
-    height:0;
+.map-responsive {
+  overflow: hidden;
+  padding-bottom: 50%;
+  position: relative;
+  height: 0;
 }
-.map-responsive iframe{
-    left:0;
-    top:0;
-    height:100%;
-    width:100%;
-    position:absolute;
+.map-responsive iframe {
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
 }
 .ajax-loader {
   visibility: hidden;
-  background-color: rgba(255,255,255,0.7);
+  background-color: rgba(255, 255, 255, 0.7);
   position: absolute;
   z-index: +100 !important;
   width: 100%;
-  height:100%;
+  height: 100%;
 }
 
 .ajax-loader img {
   position: relative;
-  top:50%;
-  left:50%;
+  top: 50%;
+  left: 50%;
+}
+
+.select2-container {
+  width: 100% !important;
 }

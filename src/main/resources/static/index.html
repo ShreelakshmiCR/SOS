@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
 <title>Sensor Information System</title>
 <link rel="shortcut icon" href="src/img/favicon.png" type="image/png">
 <!-- CSS only -->
@@ -25,7 +31,9 @@
 
 <!--  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">  
  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">  --> 
-   
+
+ <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 </head>
 <body>
 <div class="ajax-loader">
@@ -72,22 +80,22 @@
 							<option value="ds">DescribeSensor</option>
 							<option value="go_airtemperature_1">GetObservation Air Temperature</option>
 							<option value="go_airtemperature_series">GetObservation Air Temperature (Time Series)</option>
-							<!-- <option value="go_pressure_1">GetObservation Atmospheric Pressure</option>
-								<option value="go_pressure_series">GetObservation Atmospheric Pressure (Time Series)</option>
-								<option value="go_conductivity_1">GetObservation Conductivity</option>
-								<option value="go_conductivity_series">GetObservation Conductivity (Time Series)</option>
-								<option value="go_currents_1">GetObservation Currents</option>
-								<option value="go_currents_series">GetObservation Currents (Time Series)</option>
-								<option value="go_salinity_1">GetObservation Salinity</option>
-								<option value="go_salinity_series">GetObservation Salinity (Time Series)</option>
-								<option value="go_waterlevel_1">GetObservation Water Level</option>
-								<option value="go_waterlevel_series">GetObservation Water Level (Time Series)</option>
-								<option value="go_watertemperature_1">GetObservation Water Temperature</option>
-								<option value="go_watertemperature_series">GetObservation Water Temperature (Time Series)</option>
-								<option value="go_waves_1">GetObservation Waves</option>
-								<option value="go_waves_series">GetObservation Waves (Time Series)</option>
-								<option value="go_winds_1">GetObservation Winds</option>
-								<option value="go_winds_series">GetObservation Winds (Time Series)</option> -->
+							<option value="go_pressure_1">GetObservation Atmospheric Pressure</option>
+							<option value="go_pressure_series">GetObservation Atmospheric Pressure (Time Series)</option>
+							<option value="go_conductivity_1">GetObservation Conductivity</option>
+							<option value="go_conductivity_series">GetObservation Conductivity (Time Series)</option>
+							<option value="go_currents_1">GetObservation Currents</option>
+							<option value="go_currents_series">GetObservation Currents (Time Series)</option>
+							<option value="go_salinity_1">GetObservation Salinity</option>
+							<option value="go_salinity_series">GetObservation Salinity (Time Series)</option>
+							<option value="go_waterlevel_1">GetObservation Water Level</option>
+							<option value="go_waterlevel_series">GetObservation Water Level (Time Series)</option>
+							<option value="go_watertemperature_1">GetObservation Water Temperature</option>
+							<option value="go_watertemperature_series">GetObservation Water Temperature (Time Series)</option>
+							<option value="go_waves_1">GetObservation Waves</option>
+							<option value="go_waves_series">GetObservation Waves (Time Series)</option>
+							<option value="go_winds_1">GetObservation Winds</option>
+							<option value="go_winds_series">GetObservation Winds (Time Series)</option>
 						</select>
 						<!-- <p>&nbsp;&nbsp;&nbsp;</p>
 						<button type="button" id="request-btn" class="btn btn-primary">Go</button> -->
@@ -97,7 +105,7 @@
 						<label for="requsts">Available Stations</label>
 						<div style="display: flex;"> 
 						<select
-							class="form-control" name="stations" id="stations" required>
+							class="js-example-basic-single js-states form-control" name="stations" id="stations" required>
 							<option value="" disabled selected>Select Station</option>
 						</select>
 						<!-- <p>&nbsp;&nbsp;&nbsp;</p>
@@ -115,9 +123,9 @@
 							<option value="ct1">Sea water electrical conductivity</option>
 							<option value="adcp0">Currents</option>
 							<option value="ct1">Sea water salinity</option>
-							<option value="go_airtemperature_series">Sea floor depth below sea surface</option>
+							<option value="tsunameter0">Sea floor depth below sea surface</option>
 							<option value="watertemp1">Sea water temperature</option>
-							<option value="seismometer1">Waves</option>
+							<option value="seismometer0">Waves</option>
 							<option value="anemometer1">Winds</option>
 						</select>
 						<!-- <p>&nbsp;&nbsp;&nbsp;</p>
@@ -147,9 +155,70 @@
 							<button type="button" id="station-btn" class="btn btn-primary">Go</button> -->
 							</div>
 						</div>
-						<label id="beginTime">2012-11-01T00:50:00Z</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<label id="endTime">2012-11-01T00:50:00Z</label>
+						<label id="beginPosition"></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<label id="endPosition"></label>
 					</div>
+					
+					<br>
+					<button type="button" id="request-btn" class="btn btn-primary">Go</button>
+					
+					<div class="form-group" id="bboxSearch">
+						<br>
+						<label for="bbox">Bounding Box</label><br>
+						<label for="bbox">Lower Left Corner</label>
+						<div class=" input-group">
+							<span class="input-group-text" id="basic-addon1">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
+									<path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2H5zm6 1v2h2v6h-2v2H5v-2H3V5h2V3h6zm1-2h3v3h-3V1zm3 11v3h-3v-3h3zM4 15H1v-3h3v3zM1 4V1h3v3H1z"/>
+								</svg>
+							</span>
+							<input id="llclat" type="text" class="form-control" placeholder="Latitude" aria-label="Input group example" aria-describedby="basic-addon1">
+							&nbsp;&nbsp;
+							<span class="input-group-text" id="basic-addon2">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
+										<path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2H5zm6 1v2h2v6h-2v2H5v-2H3V5h2V3h6zm1-2h3v3h-3V1zm3 11v3h-3v-3h3zM4 15H1v-3h3v3zM1 4V1h3v3H1z"/>
+									</svg>
+								</span>
+								<input id="llclon" type="text" class="form-control" placeholder="Longitude" aria-label="Input group example" aria-describedby="basic-addon2">
+								
+							&nbsp;&nbsp;
+							</div>
+							<label for="bbox">Upper Right Corner</label>
+							<div class=" input-group">
+								<span class="input-group-text" id="basic-addon3">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
+										<path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2H5zm6 1v2h2v6h-2v2H5v-2H3V5h2V3h6zm1-2h3v3h-3V1zm3 11v3h-3v-3h3zM4 15H1v-3h3v3zM1 4V1h3v3H1z"/>
+									</svg>
+								</span>
+								<input id="urclat" type="text" class="form-control" placeholder="Latitude" aria-label="Input group example" aria-describedby="basic-addon1">
+								&nbsp;&nbsp;
+								<span class="input-group-text" id="basic-addon4">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
+											<path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2H5zm6 1v2h2v6h-2v2H5v-2H3V5h2V3h6zm1-2h3v3h-3V1zm3 11v3h-3v-3h3zM4 15H1v-3h3v3zM1 4V1h3v3H1z"/>
+										</svg>
+									</span>
+									<input id="urclon" type="text" class="form-control" placeholder="Longitude" aria-label="Input group example" aria-describedby="basic-addon2">
+									
+								&nbsp;&nbsp;
+								</div>
+								<br>
+							<button type="button" id="bb-search-btn" class="btn btn-primary">Search</button>
+					</div>
+					<!-- 
+					<div class="form-group" id="searchGroup">
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="searchRadio" id="properties" value="properties" checked>
+							<label class="form-check-label" for="properties">
+							  Properties
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="searchRadio" id="bbox" value="bbox">
+							<label class="form-check-label" for="bbox">
+							  Bounding Box
+							</label>
+						</div>
+					</div> -->
 					<!-- <div class="form-group">
 						<label for="srs" id="timePosLab">Time Position</label>
 						<div class="container" style="margin-left: 30px">
@@ -163,8 +232,7 @@
 						     
 						</div>
 					</div>  --> 
-					<br>
-					<button type="button" id="request-btn" class="btn btn-primary">Go</button>
+					
 				</form>
 			</div>
 			<div class="col-md-6">
@@ -301,6 +369,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>    -->    
 
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 	
 </body>
 </html>

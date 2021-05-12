@@ -1,6 +1,5 @@
 package com.sensor.details.utils;
 
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -695,7 +694,6 @@ public class StringUtils {
 		return !s1.equals(s2);
 	}
 
-
 	public static HashMap convertJSONToMap(String jsonInput) throws Exception {
 		if (isNullOrEmpty(jsonInput)) {
 			return new HashMap();
@@ -761,7 +759,7 @@ public class StringUtils {
 	}
 
 	public static String convertMapToJSONString(HashMap map) throws Exception {
-		JSONObject json = new JSONObject(map);
+		JSONObject json = new JSONObject();
 		return json.toJSONString();
 	}
 
