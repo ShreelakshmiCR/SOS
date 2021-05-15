@@ -61,7 +61,7 @@ public class NdbcController {
 	}
 
 	@GetMapping("/ndbc/observation/{stationId}/{property}/{time}")
-	public JSONObject getObservation(@PathVariable String stationId, @PathVariable String property,
+	public JSONObject getObservationAirTemp(@PathVariable String stationId, @PathVariable String property,
 			@PathVariable String time) {
 		System.out.println("ID:" + stationId);
 		System.out.println("TIME:" + time);
@@ -82,7 +82,7 @@ public class NdbcController {
 	}
 
 	@GetMapping("/ndbc/observation/{stationId}/{property}/{beginTime}/{endTime}")
-	public JSONObject getObservationSeries(@PathVariable String stationId, @PathVariable String property,
+	public JSONObject getObservationAirTempSeries(@PathVariable String stationId, @PathVariable String property,
 			@PathVariable String beginTime, @PathVariable String endTime) {
 		System.out.println("ID:" + stationId);
 		System.out.println("Begin TIME:" + beginTime);

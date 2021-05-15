@@ -2,10 +2,29 @@ package com.sensor.details.pojo;
 
 public class ObservationAirTempInfo {
 
+	private String propertyName;
 	private String description;
 	private String boundedBy;
 	private String latitude;
+	public String getLatitudeUnit() {
+		return latitudeUnit;
+	}
+
+	public void setLatitudeUnit(String latitudeUnit) {
+		this.latitudeUnit = latitudeUnit;
+	}
+
+	public String getLongitudeUnit() {
+		return longitudeUnit;
+	}
+
+	public void setLongitudeUnit(String longitudeUnit) {
+		this.longitudeUnit = longitudeUnit;
+	}
+
+	private String latitudeUnit;
 	private String longitude;
+	private String longitudeUnit;
 	private String stationId;
 	private String time;
 	private String altitude;
@@ -14,7 +33,7 @@ public class ObservationAirTempInfo {
 	private String temperatureUnit;
 	private String errorCode;
 	private String errorMessage;
-	
+
 	public ObservationAirTempInfo() {
 		super();
 	}
@@ -115,7 +134,6 @@ public class ObservationAirTempInfo {
 		this.temperatureUnit = temperatureUnit;
 	}
 
-	
 	public String getErrorCode() {
 		return errorCode;
 	}
@@ -132,6 +150,20 @@ public class ObservationAirTempInfo {
 		this.errorMessage = errorMessage;
 	}
 
+	/**
+	 * @return String return the propertyName
+	 */
+	public String getPropertyName() {
+		return propertyName;
+	}
+
+	/**
+	 * @param propertyName the propertyName to set
+	 */
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+
 	@Override
 	public String toString() {
 		return "ObservationAirTempInfo [description=" + description + ", boundedBy=" + boundedBy + ", latitude="
@@ -139,5 +171,5 @@ public class ObservationAirTempInfo {
 				+ altitude + ", altitudeUnit=" + altitudeUnit + ", temperature=" + temperature + ", temperatureUnit="
 				+ temperatureUnit + ", errorCode=" + errorCode + ", errorMessage=" + errorMessage + "]";
 	}
-	
+
 }

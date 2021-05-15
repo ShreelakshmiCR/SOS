@@ -6,7 +6,25 @@ public class ObservationAirTempSeriesInfo {
 
 	private String description;
 	private String latitude;
+	private String latitudeUnit;
 	private String longitude;
+	private String longitudeUnit;
+	public String getLatitudeUnit() {
+		return latitudeUnit;
+	}
+
+	public void setLatitudeUnit(String latitudeUnit) {
+		this.latitudeUnit = latitudeUnit;
+	}
+
+	public String getLongitudeUnit() {
+		return longitudeUnit;
+	}
+
+	public void setLongitudeUnit(String longitudeUnit) {
+		this.longitudeUnit = longitudeUnit;
+	}
+
 	private String stationId;
 	private String beginTime;
 	private String endTime;

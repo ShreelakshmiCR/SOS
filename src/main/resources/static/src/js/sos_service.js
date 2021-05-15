@@ -237,6 +237,32 @@ function getPropertyName(requestValue)
 	return propertyName;
 }
 
+function getPropertyValue(requestValue)
+{
+	var propertyName = "";
+	switch(requestValue) {
+		case 'go_airtemperature_1': propertyName = "air_temperature"; break;
+		case 'go_airtemperature_series': propertyName = "air_temperature"; break;
+		case 'go_pressure_1': propertyName = "air_pressure_at_sea_level"; break;
+		case 'go_pressure_series': propertyName = "air_pressure_at_sea_level"; break;
+		case 'go_conductivity_1': propertyName = "sea_water_electrical_conductivity"; break;
+		case 'go_conductivity_series': propertyName = "sea_water_electrical_conductivity"; break;
+		case 'go_currents_1': propertyName = "currents"; break;
+		case 'go_currents_series': propertyName = "currents"; break;
+		case 'go_salinity_1': propertyName = "sea_water_salinity"; break;
+		case 'go_salinity_series': propertyName = "sea_water_salinity"; break;
+		case 'go_waterlevel_1': propertyName = "sea_floor_depth_below_sea_surface"; break;
+		case 'go_waterlevel_series': propertyName = "sea_floor_depth_below_sea_surface"; break;
+		case 'go_watertemperature_1': propertyName = "sea_water_temperature"; break;
+		case 'go_watertemperature_series': propertyName = "sea_water_temperature"; break;
+		case 'go_waves_1': propertyName = "waves"; break;
+		case 'go_waves_series': propertyName = "waves"; break;
+		case 'go_winds_1': propertyName = "winds"; break;
+		case 'go_winds_series': propertyName = "winds"; break;
+	}
+	return propertyName;
+}
+
 
 $("#request-btn").click(function(){
 	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());this.blur();
@@ -398,11 +424,15 @@ $("#request-btn").click(function(){
   	  	            	data.sensorInfo.observation.altitudeUnit,
   	  	            	data.sensorInfo.observation.temperature,
   	  	            	data.sensorInfo.observation.temperatureUnit,
-  	  	            	data.sensorInfo.observation.latitude,
-  	  	            	data.sensorInfo.observation.longitude];
+  	  	            	data.sensorInfo.observation.latitude,  	  	            	
+  	  	            	data.sensorInfo.observation.longitude,  	  	            	
+						data.sensorInfo.observation.propertyName,
+						data.sensorInfo.observation.latitudeUnit,  	  	            	
+  	  	            	data.sensorInfo.observation.longitudeUnit
+						];
   	  	            
   	  	            	mymap.remove();
-  	  	            	map_desc("go_airtemperature_1", sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude,null,null);
+  	  	            	map_desc($("#requests").val(), sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude,null,null);
   	            	 }
   	            
   	             
@@ -450,7 +480,10 @@ $("#request-btn").click(function(){
    	  	            	//data.sensorInfo.observation.temperature,
    	  	            	data.sensorInfo.observation.temperatureUnit,
    	  	            	data.sensorInfo.observation.latitude,
-   	  	            	data.sensorInfo.observation.longitude];
+   	  	            	data.sensorInfo.observation.longitude,
+   	  	            	data.sensorInfo.observation.latitudeUnit,
+   	  	            	data.sensorInfo.observation.longitudeUnit
+   	  	            	];
    	            	 	
    	            	 	
 	  	            	
@@ -505,7 +538,7 @@ $("#stations").on('change',function(){
 							}
 							if(opD == "http://mmisw.org/ont/cf/parameter/currents")
 							{
-								$("#property").children("option[value^=adcp0]").show();	
+								$("#property").children("option[value^=adcp0]").hide();	
 							}
 							if(opD == "http://mmisw.org/ont/cf/parameter/sea_water_salinity")
 							{
@@ -521,7 +554,8 @@ $("#stations").on('change',function(){
 							}
 							if(opD == "http://mmisw.org/ont/cf/parameter/waves")
 							{
-								$("#property").children("option[value^=seismometer0]").show();	
+								$("#property").children("option[value^=wpm1]").show();	
+
 							}
 							if(opD == "http://mmisw.org/ont/cf/parameter/winds")
 							{
@@ -557,7 +591,7 @@ $("#stations").on('change',function(){
 
 function map_new(latlong) {
 	
-	mymap = L.map('map').setView(["19.076090", "72.877426"], 1);
+	mymap = L.map('map').setView(["0", "0"], 1);
 	mapLink =
 	  '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 	L.tileLayer(
@@ -620,7 +654,7 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 				popMes += latlongDetails[i]+"</b><br>";
 					
 			}
-		  	else if(requestType == "go_airtemperature_1" ){
+		  	else if(requestType.includes("_1" )){
 		  		
 				if(i==0)
 					popMes += "Description  : <b>"+latlongDetails[i]+"</b><br>";
@@ -633,13 +667,14 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 				if(i==4)
 					popMes += "Altitude      : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
 				if(i==6)
-					popMes += "Temperature   : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+" "+cel+"</b><br>";
+					popMes +=  latlongDetails[10]+": <b>"+latlongDetails[i]+"  "+latlongDetails[i+1]+"</b><br>";
 				if(i==8 )
-					popMes += "Latitude     : <b>"+latlongDetails[i]+"</b><br>";
+					popMes += "Latitude     : <b>"+latlongDetails[i]+" "+latlongDetails[11]+"</b><br>";
 				if(i==9 )
-					popMes += "Logitude     : <b>"+latlongDetails[i]+"</b><br>";
+					popMes += "Logitude     : <b>"+latlongDetails[i]+" "+latlongDetails[12]+"</b><br>";
+
 		  	}
-			else if(requestType == "go_airtemperature_series"){
+			else if(requestType.includes("_series")){
 		  		
 				if(i==0)
 					popMes += "Description  : <b>"+latlongDetails[i]+"</b><br>";
@@ -654,9 +689,9 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 				if(i==5)
 					popMes += "Altitude     : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
 				if(i==8 )
-					popMes += "Latitude     : <b>"+latlongDetails[i]+"</b><br>";
+					popMes += "Latitude     : <b>"+latlongDetails[i]+" "+latlongDetails[11]+"</b><br>";
 				if(i==9 )
-					popMes += "Logitude     : <b>"+latlongDetails[i]+"</b><br>";
+					popMes += "Logitude     : <b>"+latlongDetails[i]+" "+latlongDetails[12]+"</b><br>";
 		  	}
 		  	else
 		  		{

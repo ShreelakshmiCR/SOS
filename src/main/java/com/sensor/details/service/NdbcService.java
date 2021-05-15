@@ -59,7 +59,8 @@ public class NdbcService {
 
 			// Start of XML parsing
 			NodeList acctdetails = document.getElementsByTagName("sos:procedure");
-			capabalities.setResponseXML("");// response.getBody()
+			//response is shown in response text box
+			capabalities.setResponseXML(response.getBody());// 
 
 			NodeList observationsNodeList = document.getElementsByTagName("sos:ObservationOffering");
 
@@ -355,6 +356,8 @@ public class NdbcService {
 				observationAirTemp.setErrorMessage(errorMessage);
 
 			} else {
+
+				observationAirTemp.setPropertyName(property);
 				observationAirTemp.setDescription(
 						xpath.evaluate("//ObservationCollection//member//Observation//description", document));
 				observationAirTemp.setBoundedBy(
@@ -362,9 +365,15 @@ public class NdbcService {
 				observationAirTemp.setLatitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//value",
 						document));
+				observationAirTemp.setLatitudeUnit(xpath.evaluate(
+						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//uom//@code",
+						document));				
 				observationAirTemp.setLongitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value",
 						document));
+				observationAirTemp.setLongitudeUnit(xpath.evaluate(
+						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//uom//@code",
+						document));				
 				observationAirTemp.setStationId(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value",
 						document));
@@ -379,9 +388,10 @@ public class NdbcService {
 						document));
 				observationAirTemp.setTemperature(
 						xpath.evaluate("//ObservationCollection//result//DataStream//values", document).split(",")[1]);
-				observationAirTemp.setTemperatureUnit(xpath.evaluate(
-						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='air_temperature']//Quantity//uom//@code",
-						document));
+				observationAirTemp.setTemperatureUnit(xpath
+						.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='"
+								+ property + "']//Quantity//uom//@code", document));
+
 			}
 
 			resultMap.put("response", response.getBody());
@@ -452,9 +462,15 @@ public class NdbcService {
 				observationAirTempSeriesInfo.setLatitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//value",
 						document));
+				observationAirTempSeriesInfo.setLatitudeUnit(xpath.evaluate(
+						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//uom//@code",
+						document));				
 				observationAirTempSeriesInfo.setLongitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value",
 						document));
+				observationAirTempSeriesInfo.setLongitudeUnit(xpath.evaluate(
+						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//uom//@code",
+						document));				
 				observationAirTempSeriesInfo.setStationId(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value",
 						document));
@@ -470,9 +486,9 @@ public class NdbcService {
 				observationAirTempSeriesInfo.setAltitudeUnit(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='altitude']//Quantity//uom//@code",
 						document));
-				observationAirTempSeriesInfo.setTemperatureUnit(xpath.evaluate(
-						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='air_temperature']//Quantity//uom//@code",
-						document));
+				observationAirTempSeriesInfo.setTemperatureUnit(xpath
+						.evaluate("//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='"
+								+ property + "']//Quantity//uom//@code", document));
 
 				String[] tempArray = xpath.evaluate("//DataStream//values", document).split("\n");
 				List<AirTempSeriesInfo> tempSeriesInfo = new ArrayList<AirTempSeriesInfo>();
@@ -483,6 +499,9 @@ public class NdbcService {
 						obj.setTemp(tempDetail[1]);
 						obj.setTime(observationAirTempSeriesInfo.getBeginTime());
 					} else if (tempDetail.length == 3) {
+						obj.setTemp(tempDetail[2]);
+						obj.setTime(tempDetail[0]);
+					} else if (tempDetail.length == 4) {
 						obj.setTemp(tempDetail[2]);
 						obj.setTime(tempDetail[0]);
 					}
