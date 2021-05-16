@@ -6,22 +6,6 @@ public class ObservationAirTempInfo {
 	private String description;
 	private String boundedBy;
 	private String latitude;
-	public String getLatitudeUnit() {
-		return latitudeUnit;
-	}
-
-	public void setLatitudeUnit(String latitudeUnit) {
-		this.latitudeUnit = latitudeUnit;
-	}
-
-	public String getLongitudeUnit() {
-		return longitudeUnit;
-	}
-
-	public void setLongitudeUnit(String longitudeUnit) {
-		this.longitudeUnit = longitudeUnit;
-	}
-
 	private String latitudeUnit;
 	private String longitude;
 	private String longitudeUnit;
@@ -164,6 +148,34 @@ public class ObservationAirTempInfo {
 		this.propertyName = propertyName;
 	}
 
+	/**
+	 * @return String return the latitudeUnit
+	 */
+	public String getLatitudeUnit() {
+		return latitudeUnit;
+	}
+
+	/**
+	 * @param latitudeUnit the latitudeUnit to set
+	 */
+	public void setLatitudeUnit(String latitudeUnit) {
+		this.latitudeUnit = latitudeUnit;
+	}
+
+	/**
+	 * @return String return the logitudeUnit
+	 */
+	public String getLongitudeUnit() {
+		return longitudeUnit;
+	}
+
+	/**
+	 * @param logitudeUnit the logitudeUnit to set
+	 */
+	public void setLongitudeUnit(String longitudeUnit) {
+		this.longitudeUnit = longitudeUnit;
+	}
+
 	@Override
 	public String toString() {
 		return "ObservationAirTempInfo [description=" + description + ", boundedBy=" + boundedBy + ", latitude="
@@ -171,5 +183,4 @@ public class ObservationAirTempInfo {
 				+ altitude + ", altitudeUnit=" + altitudeUnit + ", temperature=" + temperature + ", temperatureUnit="
 				+ temperatureUnit + ", errorCode=" + errorCode + ", errorMessage=" + errorMessage + "]";
 	}
-
 }

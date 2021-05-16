@@ -59,8 +59,7 @@ public class NdbcService {
 
 			// Start of XML parsing
 			NodeList acctdetails = document.getElementsByTagName("sos:procedure");
-			//response is shown in response text box
-			capabalities.setResponseXML(response.getBody());// 
+			capabalities.setResponseXML(response.getBody());// response.getBody()
 
 			NodeList observationsNodeList = document.getElementsByTagName("sos:ObservationOffering");
 
@@ -367,13 +366,13 @@ public class NdbcService {
 						document));
 				observationAirTemp.setLatitudeUnit(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//uom//@code",
-						document));				
+						document));
 				observationAirTemp.setLongitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value",
 						document));
 				observationAirTemp.setLongitudeUnit(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//uom//@code",
-						document));				
+						document));
 				observationAirTemp.setStationId(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value",
 						document));
@@ -464,13 +463,13 @@ public class NdbcService {
 						document));
 				observationAirTempSeriesInfo.setLatitudeUnit(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='latitude']//Quantity//uom//@code",
-						document));				
+						document));
 				observationAirTempSeriesInfo.setLongitude(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//value",
 						document));
 				observationAirTempSeriesInfo.setLongitudeUnit(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='location']//Vector//coordinate[@name='longitude']//Quantity//uom//@code",
-						document));				
+						document));
 				observationAirTempSeriesInfo.setStationId(xpath.evaluate(
 						"//ObservationCollection//result//DataStream//elementType//DataRecord//field[@name='stationID']//Text//value",
 						document));
@@ -491,19 +490,22 @@ public class NdbcService {
 								+ property + "']//Quantity//uom//@code", document));
 
 				String[] tempArray = xpath.evaluate("//DataStream//values", document).split("\n");
+				// System.out.println(tempArray);
+				// System.out.println(Arrays.toString(tempArray));
 				List<AirTempSeriesInfo> tempSeriesInfo = new ArrayList<AirTempSeriesInfo>();
 				for (String each : tempArray) {
 					AirTempSeriesInfo obj = new AirTempSeriesInfo();
 					String[] tempDetail = each.split(",");
+					// System.out.println(Arrays.toString(tempDetail));
+					// System.out.println(tempDetail.length);
 					if (tempDetail.length == 2) {
 						obj.setTemp(tempDetail[1]);
 						obj.setTime(observationAirTempSeriesInfo.getBeginTime());
-					} else if (tempDetail.length == 3) {
+						System.out.println(tempDetail[1] + " " + observationAirTempSeriesInfo.getBeginTime());
+					} else {
 						obj.setTemp(tempDetail[2]);
 						obj.setTime(tempDetail[0]);
-					} else if (tempDetail.length == 4) {
-						obj.setTemp(tempDetail[2]);
-						obj.setTime(tempDetail[0]);
+						// System.out.println(tempDetail[2] + " " + tempDetail[0]);
 					}
 
 					tempSeriesInfo.add(obj);

@@ -9,22 +9,6 @@ public class ObservationAirTempSeriesInfo {
 	private String latitudeUnit;
 	private String longitude;
 	private String longitudeUnit;
-	public String getLatitudeUnit() {
-		return latitudeUnit;
-	}
-
-	public void setLatitudeUnit(String latitudeUnit) {
-		this.latitudeUnit = latitudeUnit;
-	}
-
-	public String getLongitudeUnit() {
-		return longitudeUnit;
-	}
-
-	public void setLongitudeUnit(String longitudeUnit) {
-		this.longitudeUnit = longitudeUnit;
-	}
-
 	private String stationId;
 	private String beginTime;
 	private String endTime;
@@ -34,7 +18,7 @@ public class ObservationAirTempSeriesInfo {
 	private List<AirTempSeriesInfo> airTempSeries;
 	private String errorCode;
 	private String errorMessage;
-	
+
 	public ObservationAirTempSeriesInfo() {
 		super();
 	}
@@ -151,6 +135,34 @@ public class ObservationAirTempSeriesInfo {
 
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+
+	/**
+	 * @return String return the latitudeUnit
+	 */
+	public String getLatitudeUnit() {
+		return latitudeUnit;
+	}
+
+	/**
+	 * @param latitudeUnit the latitudeUnit to set
+	 */
+	public void setLatitudeUnit(String latitudeUnit) {
+		this.latitudeUnit = latitudeUnit;
+	}
+
+	/**
+	 * @return String return the longitudeUnit
+	 */
+	public String getLongitudeUnit() {
+		return longitudeUnit;
+	}
+
+	/**
+	 * @param longitudeUnit the longitudeUnit to set
+	 */
+	public void setLongitudeUnit(String longitudeUnit) {
+		this.longitudeUnit = longitudeUnit;
 	}
 
 	@Override

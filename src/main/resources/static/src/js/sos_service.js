@@ -3,6 +3,7 @@ var capabilites;
 var offerings;
 var mymap;
 var myChart;
+var polygon;
 
 $(document).ready(function(){
     
@@ -175,6 +176,8 @@ $("#requests").on('change', function(){
 		$('#timeSeries').show();
 		$("#timeForm").show();
 		$("#inTimeForm").hide();
+		$("#stations").select2().val("urn:ioos:station:wmo:41012");
+
 	}
 	else if($("#requests").val().includes("_1")){
 		$("#availProp").hide();
@@ -236,33 +239,6 @@ function getPropertyName(requestValue)
 	}
 	return propertyName;
 }
-
-function getPropertyValue(requestValue)
-{
-	var propertyName = "";
-	switch(requestValue) {
-		case 'go_airtemperature_1': propertyName = "air_temperature"; break;
-		case 'go_airtemperature_series': propertyName = "air_temperature"; break;
-		case 'go_pressure_1': propertyName = "air_pressure_at_sea_level"; break;
-		case 'go_pressure_series': propertyName = "air_pressure_at_sea_level"; break;
-		case 'go_conductivity_1': propertyName = "sea_water_electrical_conductivity"; break;
-		case 'go_conductivity_series': propertyName = "sea_water_electrical_conductivity"; break;
-		case 'go_currents_1': propertyName = "currents"; break;
-		case 'go_currents_series': propertyName = "currents"; break;
-		case 'go_salinity_1': propertyName = "sea_water_salinity"; break;
-		case 'go_salinity_series': propertyName = "sea_water_salinity"; break;
-		case 'go_waterlevel_1': propertyName = "sea_floor_depth_below_sea_surface"; break;
-		case 'go_waterlevel_series': propertyName = "sea_floor_depth_below_sea_surface"; break;
-		case 'go_watertemperature_1': propertyName = "sea_water_temperature"; break;
-		case 'go_watertemperature_series': propertyName = "sea_water_temperature"; break;
-		case 'go_waves_1': propertyName = "waves"; break;
-		case 'go_waves_series': propertyName = "waves"; break;
-		case 'go_winds_1': propertyName = "winds"; break;
-		case 'go_winds_series': propertyName = "winds"; break;
-	}
-	return propertyName;
-}
-
 
 $("#request-btn").click(function(){
 	insertXMLRequest($("#requests").val(), $("#stations").val(),$("#property").val());this.blur();
@@ -424,12 +400,11 @@ $("#request-btn").click(function(){
   	  	            	data.sensorInfo.observation.altitudeUnit,
   	  	            	data.sensorInfo.observation.temperature,
   	  	            	data.sensorInfo.observation.temperatureUnit,
-  	  	            	data.sensorInfo.observation.latitude,  	  	            	
-  	  	            	data.sensorInfo.observation.longitude,  	  	            	
+  	  	            	data.sensorInfo.observation.latitude,
+  	  	            	data.sensorInfo.observation.longitude,
 						data.sensorInfo.observation.propertyName,
-						data.sensorInfo.observation.latitudeUnit,  	  	            	
-  	  	            	data.sensorInfo.observation.longitudeUnit
-						];
+						data.sensorInfo.observation.latitudeUnit,
+						data.sensorInfo.observation.longitudeUnit];
   	  	            
   	  	            	mymap.remove();
   	  	            	map_desc($("#requests").val(), sensorDesc, data.sensorInfo.observation.latitude, data.sensorInfo.observation.longitude,null,null);
@@ -481,9 +456,8 @@ $("#request-btn").click(function(){
    	  	            	data.sensorInfo.observation.temperatureUnit,
    	  	            	data.sensorInfo.observation.latitude,
    	  	            	data.sensorInfo.observation.longitude,
-   	  	            	data.sensorInfo.observation.latitudeUnit,
-   	  	            	data.sensorInfo.observation.longitudeUnit
-   	  	            	];
+						data.sensorInfo.observation.latitudeUnit,
+						data.sensorInfo.observation.longitudeUnit];
    	            	 	
    	            	 	
 	  	            	
@@ -667,7 +641,7 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 				if(i==4)
 					popMes += "Altitude      : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
 				if(i==6)
-					popMes +=  latlongDetails[10]+": <b>"+latlongDetails[i]+"  "+latlongDetails[i+1]+"</b><br>";
+					popMes +=  latlongDetails[10]+": <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
 				if(i==8 )
 					popMes += "Latitude     : <b>"+latlongDetails[i]+" "+latlongDetails[11]+"</b><br>";
 				if(i==9 )
@@ -689,9 +663,9 @@ function map_desc(requestType, latlongDetails, latitude, longitude, tempDates, t
 				if(i==5)
 					popMes += "Altitude     : <b>"+latlongDetails[i]+" "+latlongDetails[i+1]+"</b><br>";
 				if(i==8 )
-					popMes += "Latitude     : <b>"+latlongDetails[i]+" "+latlongDetails[11]+"</b><br>";
+					popMes += "Latitude     : <b>"+latlongDetails[i]+" "+latlongDetails[10]+"</b><br>";
 				if(i==9 )
-					popMes += "Logitude     : <b>"+latlongDetails[i]+" "+latlongDetails[12]+"</b><br>";
+					popMes += "Logitude     : <b>"+latlongDetails[i]+" "+latlongDetails[11]+"</b><br>";
 		  	}
 		  	else
 		  		{
@@ -756,7 +730,10 @@ function map_bb(llclat, llclong, ulclat, ulclon, lrclat, lrclon, urclat, urclon)
 		}
 	}*/
 
-	var polygon = L.rectangle([
+	if(polygon!= undefined) {
+		window.mymap.removeLayer(window.polygon);
+	}
+	polygon = L.rectangle([
 		[llclat, llclong],
 		[ulclat, ulclon],
 		[lrclat, lrclon],
